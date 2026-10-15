@@ -152,7 +152,14 @@ router.post("/login", async (req, res) => {
       if (member && member.pin === password) {
         return res.json({
           success: true,
-          user: { role: "member", memberId: member._id, name: member.name },
+          user: {
+            role: "member",
+            memberId: member._id,
+            name: member.name,
+            phone: member.phone,
+            room: member.room,
+            photo: member.photo || "",
+          },
         });
       }
       return res.status(401).json({ error: "Invalid credentials" });

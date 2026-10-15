@@ -123,5 +123,92 @@ function applyRolePermissions() {
     if (typeof initMyMealForm === "function") {
       initMyMealForm();
     }
+    if (typeof initMyProfileHeader === "function") {
+      initMyProfileHeader();
+    }
+  }
+}
+
+// Populate member profile card in tab-my-details
+async function initMyProfileHeader() {
+  if (!currentUser || currentUser.role !== "member") return;
+
+  const nameEl = document.getElementById("myProfileName");
+  const phoneEl = document.getElementById("myProfilePhone");
+  const roomEl = document.getElementById("myProfileRoom");
+  const avatarEl = document.getElementById("myProfileAvatar");
+
+  if (!nameEl) return;
+
+  nameEl.innerText = currentUser.name || "আমার প্রোফাইল";
+  phoneEl.innerHTML = `<i class="fas fa-phone-alt text-xs mr-1"></i> ${currentUser.phone || "-"}`;
+  roomEl.innerText = `রুম: ${currentUser.room || "-"}`;
+
+  const avatarSrc = currentUser.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || "Member")}&background=6366f1&color=fff&size=128`;
+  avatarEl.src = avatarSrc;
+
+  // Also fetch latest from server to ensure fresh profile data
+  try {
+    const res = await fetch(`${API_BASE}/members/${currentUser.memberId}`);
+    if (res.ok) {
+      const freshMember = await res.json();
+      currentUser.name = freshMember.name;
+      currentUser.phone = freshMember.phone;
+      currentUser.room = freshMember.room;
+      currentUser.photo = freshMember.photo || "";
+      localStorage.setItem("mess_user", JSON.stringify(currentUser));
+
+      nameEl.innerText = freshMember.name;
+      phoneEl.innerHTML = `<i class="fas fa-phone-alt text-xs mr-1"></i> ${freshMember.phone || "-"}`;
+      roomEl.innerText = `রুম: ${freshMember.room || "-"}`;
+      avatarEl.src = freshMember.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(freshMember.name)}&background=6366f1&color=fff&size=128`;
+    }
+  } catch (e) {
+    console.error("Error refreshing my profile:", e);
+  }
+}
+
+// Upload profile photo by member themselves
+async function uploadMyProfilePhoto() {
+  if (!currentUser || currentUser.role !== "member") return;
+
+  const fileInput = document.getElementById("memberOwnPhotoInput");
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("uploadType", "photo");
+
+  const statusEl = document.getElementById("myPhotoUploadStatus");
+  if (statusEl) {
+    statusEl.classList.remove("hidden");
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> ছবি আপলোড হচ্ছে...`;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/members/${currentUser.memberId}/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      currentUser.photo = data.fileUrl;
+      localStorage.setItem("mess_user", JSON.stringify(currentUser));
+
+      const avatarEl = document.getElementById("myProfileAvatar");
+      if (avatarEl) avatarEl.src = data.fileUrl;
+
+      alert("আপনার প্রোফাইল ছবি সফলভাবে সেট করা হয়েছে!");
+    } else {
+      alert(data.error || "ছবি আপলোড ব্যর্থ হয়েছে!");
+    }
+  } catch (err) {
+    console.error("Photo upload error:", err);
+    alert("সার্ভার এরর হয়েছে!");
+  } finally {
+    if (statusEl) statusEl.classList.add("hidden");
+    fileInput.value = "";
   }
 }
