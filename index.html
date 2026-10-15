@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>মেস ম্যানেজমেন্ট সিস্টেম</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div
+      id="authContainer"
+      class="flex flex-col items-center justify-center h-screen bg-indigo-50"
+    >
+      <div
+        class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center"
+      >
+        <h1 class="text-3xl font-bold text-indigo-900 mb-6">
+          <i class="fas fa-home"></i> মেস ম্যানেজার
+        </h1>
+
+        <div id="loginFormContainer" class="space-y-4">
+          <p class="text-gray-600 mb-4">
+            লগইন করে আপনার অ্যাকাউন্টে প্রবেশ করুন
+          </p>
+          <form id="loginForm" class="space-y-4 text-left">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1"
+                >মোবাইল নম্বর / অ্যাডমিন আইডি</label
+              >
+              <input
+                type="text"
+                id="loginPhone"
+                required
+                placeholder="মোবাইল নম্বর অথবা 'admin'"
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1"
+                >পাসওয়ার্ড / পিন</label
+              >
+              <input
+                type="password"
+                id="loginPassword"
+                required
+                placeholder="পিন দিন..."
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-bold"
+            >
+              লগইন
+            </button>
+            <div id="registerLinkDiv" class="text-center mt-2">
+              <p class="text-sm text-gray-600">
+                একাউন্ট নেই?
+                <a
+                  href="#"
+                  onclick="showRegister()"
+                  class="text-indigo-600 font-bold hover:underline"
+                  >রেজিস্টার করুন</a
+                >
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <div id="registerFormContainer" class="hidden space-y-4">
+          <p class="text-xl font-bold text-gray-800 mb-4">
+            নতুন মেম্বার রেজিস্ট্রেশন
+          </p>
+          <form id="registerFormAuth" class="space-y-4 text-left">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">নাম</label>
+              <input
+                type="text"
+                id="regName"
+                required
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1"
+                >মোবাইল নম্বর (এটি দিয়ে লগইন করতে হবে)</label
+              >
+              <input
+                type="tel"
+                id="regPhone"
+                required
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">রুম নম্বর</label>
+              <input
+                type="text"
+                id="regRoom"
+                required
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1"
+                >পাসওয়ার্ড / পিন</label
+              >
+              <input
+                type="password"
+                id="regPin"
+                required
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-bold"
+            >
+              রেজিস্টার
+            </button>
+            <button
+              type="button"
+              onclick="showLogin()"
+              class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition text-sm"
+            >
+              লগইনে ফিরে যান
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="appContainer" class="hidden flex h-screen overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-indigo-900 text-white flex flex-col hidden md:flex">
+        <div
+          class="p-5 text-2xl font-bold border-b border-indigo-800 flex items-center justify-between"
+        >
+          <span><i class="fas fa-home"></i> মেস ম্যানেজার</span>
+          <button
+            onclick="logout()"
+            class="text-sm text-red-300 hover:text-red-100"
+            title="লগআউট"
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+          <button
+            onclick="switchTab('dashboard')"
+            id="nav-dashboard"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-800 text-white transition"
+          >
+            <i class="fas fa-chart-pie"></i> ড্যাশবোর্ড
+          </button>
+          <button
+            onclick="switchTab('members')"
+            id="nav-members"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-users"></i> সদস্য ব্যবস্থাপনা
+          </button>
+          <button
+            onclick="switchTab('deposits')"
+            id="nav-deposits"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-wallet"></i> টাকা জমা (Deposit)
+          </button>
+          <button
+            onclick="switchTab('meals')"
+            id="nav-meals"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-utensils"></i> মিল এন্ট্রি (Meals)
+          </button>
+          <button
+            onclick="switchTab('expenses')"
+            id="nav-expenses"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-shopping-cart"></i> বাজার ও খরচ (Bazar)
+          </button>
+          <button
+            onclick="switchTab('member-details')"
+            id="nav-member-details"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-user-circle"></i> সদস্যের বিস্তারিত
+          </button>
+          <button
+            onclick="switchTab('my-details')"
+            id="nav-my-details"
+            class="member-only hidden w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-user"></i> আমার বিস্তারিত
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex flex-col overflow-y-auto relative">
+        <!-- Top Header -->
+        <header
+          class="bg-white shadow-sm p-4 flex justify-between items-center md:hidden"
+        >
+          <span class="text-xl font-bold text-indigo-900">মেস ম্যানেজার</span>
+          <div class="flex items-center gap-4">
+            <button onclick="logout()" class="text-red-500 text-lg">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+            <button onclick="toggleSidebar()" class="text-gray-700 text-xl">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </header>
+
+        <main class="p-6">
+          <!-- 1. Dashboard Tab -->
+          <section id="tab-dashboard" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+              মাসের সারসংক্ষেপ (Dashboard)
+            </h2>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div
+                class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-600"
+              >
+                <p class="text-gray-500 text-sm">মোট জমা (Total Deposit)</p>
+                <h3 id="totalDeposit" class="text-2xl font-bold text-gray-800">
+                  ৳ 0
+                </h3>
+              </div>
+              <div
+                class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-600"
+              >
+                <p class="text-gray-500 text-sm">মোট বাজার খরচ (Bazar Cost)</p>
+                <h3
+                  id="totalBazarCost"
+                  class="text-2xl font-bold text-gray-800"
+                >
+                  ৳ 0
+                </h3>
+              </div>
+              <div
+                class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-yellow-600"
+              >
+                <p class="text-gray-500 text-sm">মোট মিল (Total Meals)</p>
+                <h3
+                  id="totalMealsCount"
+                  class="text-2xl font-bold text-gray-800"
+                >
+                  0
+                </h3>
+              </div>
+              <div
+                class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-600"
+              >
+                <p class="text-gray-500 text-sm">বর্তমান মিল রেট (Meal Rate)</p>
+                <h3
+                  id="currentMealRate"
+                  class="text-2xl font-bold text-gray-800"
+                >
+                  ৳ 0.00
+                </h3>
+              </div>
+            </div>
+
+            <!-- Member Balance Summary Table -->
+            <div
+              class="bg-white rounded-xl shadow-sm p-6 overflow-x-auto admin-only"
+            >
+              <h3 class="text-lg font-bold text-gray-800 mb-4">
+                সদস্যদের হিসাবের বিবরণী
+              </h3>
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                    <th class="p-3">নাম</th>
+                    <th class="p-3">মোট জমা</th>
+                    <th class="p-3">মোট মিল</th>
+                    <th class="p-3">মিল খরচ</th>
+                    <th class="p-3">অবস্থা (পาวনা / বাকি)</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="summaryTableBody"
+                  class="divide-y text-sm text-gray-700"
+                >
+                  <!-- JS দিয়ে ডাটা লোড হবে -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 2. Members Tab -->
+          <section id="tab-members" class="space-y-6 hidden admin-only-section">
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-bold text-gray-800">
+                সদস্য ব্যবস্থাপনা (Members)
+              </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Add Member Form -->
+              <div class="bg-white p-6 rounded-xl shadow-sm h-fit">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  নতুন সদস্য যোগ করুন
+                </h3>
+                <form id="memberForm" class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >সদস্যের নাম</label
+                    >
+                    <input
+                      type="text"
+                      id="memberName"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >মোবাইল নম্বর</label
+                    >
+                    <input
+                      type="text"
+                      id="memberPhone"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >রুম নম্বর</label
+                    >
+                    <input
+                      type="text"
+                      id="memberRoom"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >লগইন পিন (PIN)</label
+                    >
+                    <input
+                      type="password"
+                      id="memberPin"
+                      required
+                      placeholder="যেমন: 1234"
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    সদস্য সেভ করুন
+                  </button>
+                </form>
+              </div>
+              <!-- Members List -->
+              <div
+                class="bg-white p-6 rounded-xl shadow-sm md:col-span-2 overflow-x-auto"
+              >
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  সকল সদস্যের তালিকা
+                </h3>
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                      <th class="p-3">নাম</th>
+                      <th class="p-3">মোবাইল</th>
+                      <th class="p-3">রুম</th>
+                      <th class="p-3">অ্যাকশন</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="memberTableBody"
+                    class="divide-y text-sm text-gray-700"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Deposits Tab -->
+          <section
+            id="tab-deposits"
+            class="space-y-6 hidden admin-only-section"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white p-6 rounded-xl shadow-sm h-fit">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  টাকা জমা নিন (Deposit)
+                </h3>
+                <form id="depositForm" class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >সদস্য নির্বাচন করুন</label
+                    >
+                    <select
+                      id="depositMemberSelect"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    ></select>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >টাকার পরিমাণ (৳)</label
+                    >
+                    <input
+                      type="number"
+                      id="depositAmount"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >তারিখ</label
+                    >
+                    <input
+                      type="date"
+                      id="depositDate"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    জমা এন্ট্রি দিন
+                  </button>
+                </form>
+              </div>
+              <div
+                class="bg-white p-6 rounded-xl shadow-sm md:col-span-2 overflow-x-auto"
+              >
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  জমার হিস্ট্রি
+                </h3>
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                      <th class="p-3">তারিখ</th>
+                      <th class="p-3">সদস্যের নাম</th>
+                      <th class="p-3">পরিমাণ</th>
+                      <th class="p-3">অ্যাকশন</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="depositTableBody"
+                    class="divide-y text-sm text-gray-700"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Meals Tab -->
+          <section id="tab-meals" class="space-y-6 hidden admin-only-section">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">
+                প্রতিদিনের মিল এন্ট্রি
+              </h3>
+              <div class="mb-4 flex items-center gap-4">
+                <label class="text-sm font-medium text-gray-700"
+                  >তারিখ নির্বাচন করুন:</label
+                >
+                <input
+                  type="date"
+                  id="mealEntryDate"
+                  class="border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                />
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                      <th class="p-3">সদস্যের নাম</th>
+                      <th class="p-3 text-center">সকাল/দুপুর (Morning)</th>
+                      <th class="p-3 text-center">রাত (Night)</th>
+                      <th class="p-3 text-center">মোট (Total)</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="mealInputTableBody"
+                    class="divide-y text-sm text-gray-700"
+                  ></tbody>
+                </table>
+              </div>
+              <button
+                onclick="saveMeals()"
+                class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+              >
+                মিল সেভ করুন
+              </button>
+            </div>
+          </section>
+
+          <!-- 5. Expenses / Bazar Tab -->
+          <section
+            id="tab-expenses"
+            class="space-y-6 hidden admin-only-section"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white p-6 rounded-xl shadow-sm h-fit">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  বাজার খরচ এন্ট্রি
+                </h3>
+                <form id="expenseForm" class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >কে বাজার করল?</label
+                    >
+                    <select
+                      id="expenseMemberSelect"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    ></select>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >খরচের পরিমাণ (৳)</label
+                    >
+                    <input
+                      type="number"
+                      id="expenseAmount"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >তারিখ</label
+                    >
+                    <input
+                      type="date"
+                      id="expenseDate"
+                      required
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm text-gray-600 mb-1"
+                      >বিবরণ / নোট</label
+                    >
+                    <input
+                      type="text"
+                      id="expenseNote"
+                      placeholder="যেমন: চাল, ডাল, মাছ"
+                      class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    খরচ যোগ করুন
+                  </button>
+                </form>
+              </div>
+              <div
+                class="bg-white p-6 rounded-xl shadow-sm md:col-span-2 overflow-x-auto"
+              >
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                  বাজারের হিস্ট্রি
+                </h3>
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                      <th class="p-3">তারিখ</th>
+                      <th class="p-3">নাম</th>
+                      <th class="p-3">বিবরণ</th>
+                      <th class="p-3">পরিমাণ</th>
+                      <th class="p-3">অ্যাকশন</th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="expenseTableBody"
+                    class="divide-y text-sm text-gray-700"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Member Details Tab (For Admin) -->
+          <section
+            id="tab-member-details"
+            class="space-y-6 hidden admin-only-section"
+          >
+            <h2 class="text-2xl font-bold text-gray-800">
+              সদস্যের বিস্তারিত (Member Details)
+            </h2>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <label class="block text-sm text-gray-600 mb-2"
+                >সদস্য নির্বাচন করুন</label
+              >
+              <select
+                id="detailsMemberSelect"
+                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500 max-w-md"
+                onchange="renderMemberDetails('md')"
+              ></select>
+            </div>
+
+            <div id="mdmemberDetailsContent" class="hidden space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-600"
+                >
+                  <p class="text-gray-500 text-sm">মোট জমা</p>
+                  <h3
+                    id="mdTotalDeposit"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    ৳ 0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-600"
+                >
+                  <p class="text-gray-500 text-sm">মোট মিল</p>
+                  <h3 id="mdTotalMeals" class="text-xl font-bold text-gray-800">
+                    0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600"
+                >
+                  <p class="text-gray-500 text-sm">মিল খরচ</p>
+                  <h3 id="mdMealCost" class="text-xl font-bold text-gray-800">
+                    ৳ 0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-600"
+                >
+                  <p class="text-gray-500 text-sm">অবস্থা (ব্যালেন্স)</p>
+                  <h3 id="mdBalance" class="text-xl font-bold text-gray-800">
+                    ৳ 0
+                  </h3>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    জমার বিবরণী
+                  </h3>
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                        <th class="p-2">তারিখ</th>
+                        <th class="p-2">পরিমাণ</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="mdDepositTableBody"
+                      class="divide-y text-sm text-gray-700"
+                    ></tbody>
+                  </table>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    মিলের বিবরণী
+                  </h3>
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                        <th class="p-2">তারিখ</th>
+                        <th class="p-2">সকাল</th>
+                        <th class="p-2">রাত</th>
+                        <th class="p-2">মোট</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="mdMealTableBody"
+                      class="divide-y text-sm text-gray-700"
+                    ></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 7. My Details Tab (For Member Only) -->
+          <section
+            id="tab-my-details"
+            class="space-y-6 hidden member-only-section"
+          >
+            <h2 class="text-2xl font-bold text-gray-800">
+              আমার হিসাব ও বিস্তারিত
+            </h2>
+
+            <!-- Member Daily Meal Form -->
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+            >
+              <h3 class="text-lg font-bold text-gray-800 mb-4">
+                আজকের মিল অ্যাড করুন
+              </h3>
+              <form
+                id="myMealForm"
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
+              >
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1">তারিখ</label>
+                  <input
+                    type="date"
+                    id="myMealDate"
+                    required
+                    class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1"
+                    >সকালের মিল</label
+                  >
+                  <input
+                    type="number"
+                    id="myMealSokal"
+                    value="0"
+                    min="0"
+                    step="0.5"
+                    required
+                    class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-600 mb-1"
+                    >রাতের মিল</label
+                  >
+                  <input
+                    type="number"
+                    id="myMealRat"
+                    value="0"
+                    min="0"
+                    step="0.5"
+                    required
+                    class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-bold shadow"
+                >
+                  সেভ করুন
+                </button>
+              </form>
+            </div>
+
+            <div id="mydetailsmemberDetailsContent" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-indigo-600"
+                >
+                  <p class="text-gray-500 text-sm">মোট জমা</p>
+                  <h3
+                    id="mydetailsTotalDeposit"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    ৳ 0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-600"
+                >
+                  <p class="text-gray-500 text-sm">মোট মিল</p>
+                  <h3
+                    id="mydetailsTotalMeals"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-600"
+                >
+                  <p class="text-gray-500 text-sm">মিল খরচ</p>
+                  <h3
+                    id="mydetailsMealCost"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    ৳ 0
+                  </h3>
+                </div>
+                <div
+                  class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-600"
+                >
+                  <p class="text-gray-500 text-sm">অবস্থা (ব্যালেন্স)</p>
+                  <h3
+                    id="mydetailsBalance"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    ৳ 0
+                  </h3>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    আমার জমার বিবরণী
+                  </h3>
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                        <th class="p-2">তারিখ</th>
+                        <th class="p-2">পরিমাণ</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="mydetailsDepositTableBody"
+                      class="divide-y text-sm text-gray-700"
+                    ></tbody>
+                  </table>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                  <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    আমার মিলের বিবরণী
+                  </h3>
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 border-b text-gray-600 text-sm">
+                        <th class="p-2">তারিখ</th>
+                        <th class="p-2">সকাল</th>
+                        <th class="p-2">রাত</th>
+                        <th class="p-2">মোট</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="mydetailsMealTableBody"
+                      class="divide-y text-sm text-gray-700"
+                    ></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Script file link -->
+    <!-- JavaScript Modules -->
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/members.js"></script>
+    <script src="js/deposits.js"></script>
+    <script src="js/expenses.js"></script>
+    <script src="js/meals.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

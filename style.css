@@ -1,0 +1,114 @@
+/* Import Bengali Font: Hind Siliguri */
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-color: #f3f4f6;
+}
+
+body {
+  font-family: "Hind Siliguri", sans-serif;
+  background-color: var(--bg-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c7c7cc;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* Smooth Transitions */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Card Hover Effects */
+.shadow-sm {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shadow-sm:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Table Row Hover */
+tbody tr:hover {
+  background-color: #f9fafb;
+  transition: background-color 0.2s ease;
+}
+
+/* Button Enhancements */
+button {
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Sidebar Nav active state animation */
+aside nav button {
+  position: relative;
+  overflow: hidden;
+}
+
+aside nav button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: white;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+aside nav button.bg-indigo-800::after {
+  transform: scaleY(1);
+}
+
+/* Fade In Animation for Tabs */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+section:not(.hidden) {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Input Focus Glow */
+input:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  border-color: var(--primary);
+}

@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Environment Variables (Keep credentials secret!)
+.env
+
+# Scratch and Logs
+scratch/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
