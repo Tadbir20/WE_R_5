@@ -235,17 +235,31 @@ router.get("/meals", async (req, res) => {
 });
 
 router.post("/meals", async (req, res) => {
-  // We expect an array of meal objects for a specific date
   try {
-    const meals = req.body; // array
-    if (!meals || meals.length === 0) return res.json({ success: true });
+    const mealData = req.body;
+    const mealsArray = Array.isArray(mealData) ? mealData : [mealData];
 
-    const date = meals[0].date;
-    // Delete existing meals for this date
-    await Meal.deleteMany({ date: date });
+    if (mealsArray.length === 0) return res.json({ success: true });
 
-    // Insert new meals
-    await Meal.insertMany(meals);
+    for (const m of mealsArray) {
+      if (!m.memberId || !m.date) continue;
+      const sokal = parseFloat(m.sokal) || 0;
+      const rat = parseFloat(m.rat) || 0;
+      const count = sokal + rat;
+
+      await Meal.findOneAndUpdate(
+        { memberId: m.memberId, date: m.date },
+        {
+          memberId: m.memberId,
+          date: m.date,
+          sokal: sokal,
+          rat: rat,
+          count: count,
+        },
+        { upsert: true, new: true }
+      );
+    }
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

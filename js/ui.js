@@ -25,10 +25,12 @@ function switchTab(tabId) {
   const activeNav = document.getElementById(`nav-${tabId}`);
   if (activeNav) activeNav.classList.add("bg-indigo-800");
 
-  // Refresh views if necessary
   if (tabId === "dashboard") updateDashboard();
   if (tabId === "member-details") renderMemberDetails("md");
   if (tabId === "backups") renderBackups();
+  if (tabId === "meals" && typeof refreshAndRenderMeals === "function") {
+    refreshAndRenderMeals();
+  }
   if (tabId === "member-files" && typeof renderMemberFilesList === "function") {
     renderMemberFilesList();
   }
