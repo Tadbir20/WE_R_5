@@ -717,24 +717,97 @@
                     ></tbody>
                   </table>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                  <h3 class="text-lg font-bold text-gray-800 mb-4">
-                    মিলের বিবরণী
-                  </h3>
-                  <table class="w-full text-left border-collapse">
-                    <thead>
-                      <tr class="bg-gray-50 border-b text-gray-600 text-sm">
-                        <th class="p-2">তারিখ</th>
-                        <th class="p-2">সকাল</th>
-                        <th class="p-2">রাত</th>
-                        <th class="p-2">মোট</th>
-                      </tr>
-                    </thead>
-                    <tbody
-                      id="mdMealTableBody"
-                      class="divide-y text-sm text-gray-700"
-                    ></tbody>
-                  </table>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                  <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div>
+                      <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-utensils text-indigo-600"></i> মিলের বিবরণী (Meals List)
+                      </h3>
+                      <p class="text-xs text-gray-500 mt-0.5">
+                        অ্যাডমিন হিসেবে আপনি সরাসরি এখান থেকে মিল এডিট, ডিলিট বা নতুন মিল যোগ করতে পারবেন।
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onclick="toggleAddMealRow('md')"
+                      class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-indigo-200 flex items-center gap-1.5 transition shadow-sm"
+                    >
+                      <i class="fas fa-plus"></i> নতুন মিল যোগ করুন
+                    </button>
+                  </div>
+
+                  <!-- Quick Add Meal Row (Collapsible) -->
+                  <div id="mdAddMealBox" class="hidden mb-4 p-3 bg-indigo-50/70 rounded-xl border border-indigo-100">
+                    <div class="text-xs font-bold text-indigo-900 mb-2 flex items-center gap-1.5">
+                      <i class="fas fa-calendar-plus text-indigo-600"></i> এই সদস্যের জন্য নতুন মিল যোগ করুন:
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <input
+                        type="date"
+                        id="mdNewMealDate"
+                        class="border border-gray-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-indigo-500 bg-white shadow-sm"
+                      />
+                      <div class="flex items-center gap-1">
+                        <span class="text-xs text-gray-600 font-medium">সকাল:</span>
+                        <input
+                          type="number"
+                          id="mdNewMealSokal"
+                          min="0"
+                          step="0.5"
+                          value="1"
+                          class="w-14 border border-gray-300 rounded-lg px-2 py-1 text-xs text-center font-bold focus:outline-indigo-500 bg-white shadow-sm"
+                        />
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <span class="text-xs text-gray-600 font-medium">রাত:</span>
+                        <input
+                          type="number"
+                          id="mdNewMealRat"
+                          min="0"
+                          step="0.5"
+                          value="1"
+                          class="w-14 border border-gray-300 rounded-lg px-2 py-1 text-xs text-center font-bold focus:outline-indigo-500 bg-white shadow-sm"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onclick="saveNewMemberMeal('md')"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1 ml-auto"
+                      >
+                        <i class="fas fa-plus-circle"></i> যোগ করুন
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase font-extrabold">
+                          <th class="p-2.5">তারিখ</th>
+                          <th class="p-2.5 text-center">সকাল</th>
+                          <th class="p-2.5 text-center">রাত</th>
+                          <th class="p-2.5 text-center">মোট</th>
+                          <th class="p-2.5 text-center">অ্যাকশন</th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="mdMealTableBody"
+                        class="divide-y text-sm text-gray-700"
+                      ></tbody>
+                    </table>
+                  </div>
+
+                  <!-- Save All Changes Button -->
+                  <div id="mdSaveAllContainer" class="hidden mt-4 pt-3 border-t border-gray-100 flex justify-end">
+                    <button
+                      id="btnSaveAllMdMeals"
+                      type="button"
+                      onclick="saveAllMemberDetailMeals()"
+                      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow"
+                    >
+                      <i class="fas fa-save"></i> সকল মিল একসাথে সেভ করুন
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

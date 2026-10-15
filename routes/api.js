@@ -8,6 +8,7 @@ const Member = require("../models/Member");
 const Deposit = require("../models/Deposit");
 const Expense = require("../models/Expense");
 const Meal = require("../models/Meal");
+const backupService = require("../services/backupService");
 
 // Configure Multer for Member File/Photo uploads
 const uploadDir = path.join(__dirname, "..", "uploads", "members");
@@ -256,9 +257,12 @@ router.post("/meals", async (req, res) => {
           rat: rat,
           count: count,
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
     }
+
+    // Auto-update rolling backup in background
+    backupService.backupLast3Months().catch(console.error);
 
     res.json({ success: true });
   } catch (err) {
@@ -266,9 +270,17 @@ router.post("/meals", async (req, res) => {
   }
 });
 
-// ----- Backup API (Last 3 Months) -----
-const backupService = require("../services/backupService");
+router.delete("/meals/:id", async (req, res) => {
+  try {
+    await Meal.findByIdAndDelete(req.params.id);
+    backupService.backupLast3Months().catch(console.error);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
+// ----- Backup API (Last 3 Months) -----
 router.get("/backups", (req, res) => {
   try {
     const list = backupService.listBackups();
