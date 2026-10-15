@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>মাসিক হিসাব বিবরণী (Monthly Statement)</title>
+    <title>মেস মাসিক হিসাব বিবরণী শীট (Mess Statement Sheet)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -11,9 +11,21 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- html2pdf for Direct PDF Download -->
+    <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+      
+      body {
+        font-family: 'Hind Siliguri', sans-serif;
+      }
+
+      /* Custom Ledger Table Borders */
+      .ledger-table th, 
+      .ledger-table td {
+        border: 1.5px solid #374151 !important;
+      }
+
       @media print {
         .no-print {
           display: none !important;
@@ -21,255 +33,307 @@
         body {
           background-color: white !important;
           padding: 0 !important;
+          margin: 0 !important;
         }
-        .statement-card {
+        .statement-sheet {
           box-shadow: none !important;
           border: none !important;
           max-width: 100% !important;
-          padding: 0 !important;
+          padding: 15px !important;
+        }
+        @page {
+          size: A4 portrait;
+          margin: 10mm;
         }
       }
     </style>
   </head>
-  <body class="bg-gray-100 min-h-screen py-8 px-4 font-sans text-gray-800">
-    <!-- Top Action Bar (Hidden in Print) -->
-    <div class="max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 no-print bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+  <body class="bg-gray-100 min-h-screen py-6 px-3 text-gray-900">
+    <!-- Top Action Bar (Hidden during print / PDF) -->
+    <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-200 no-print flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <a href="/" class="text-indigo-600 hover:text-indigo-800 font-semibold text-sm flex items-center gap-1.5">
+        <a href="/" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm flex items-center gap-1.5">
           <i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
         </a>
         <span class="text-gray-300">|</span>
-        <span id="statementMonthLabel" class="text-sm font-bold text-gray-700"></span>
+        <span id="topMonthBadge" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full border border-indigo-200">
+          মাসিক স্টেটমেন্ট
+        </span>
       </div>
+
+      <!-- Controls for Additional Cost -->
       <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-gray-700 whitespace-nowrap">
+            অতিরিক্ত খরচ (Additional ৳):
+          </label>
+          <input
+            type="number"
+            id="inputAdditionalCost"
+            value="0"
+            min="0"
+            step="1"
+            oninput="recalculateStatement()"
+            class="w-24 border border-indigo-300 rounded-lg px-2.5 py-1 text-sm font-bold text-indigo-900 focus:outline-indigo-500"
+            title="ওয়াইফাই, গ্যাস, খালা বিল ইত্যাদি মোট অতিরিক্ত খরচ দিন (সবার মাঝে সমান ভাগ হবে)"
+          />
+        </div>
+
         <button
           onclick="downloadPDF()"
           id="btnDownloadPdf"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow"
         >
           <i class="fas fa-file-pdf"></i> PDF ডাউনলোড করুন
         </button>
         <button
           onclick="window.print()"
-          class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm"
+          class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow"
         >
           <i class="fas fa-print"></i> প্রিন্ট করুন
         </button>
       </div>
     </div>
 
-    <!-- Statement Document Sheet -->
-    <div id="statementDocument" class="statement-card max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-md border border-gray-200">
+    <!-- Main Printable Statement Sheet (Styled exactly like handwritten mess sheet) -->
+    <div id="statementDocument" class="statement-sheet max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-300">
+      
       <!-- Loading State -->
-      <div id="loadingState" class="text-center py-16">
-        <i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-3"></i>
-        <p class="text-gray-500 font-medium">স্টেটমেন্ট ডাটা তৈরি হচ্ছে...</p>
-      </div>
-
-      <!-- Error State -->
-      <div id="errorState" class="hidden text-center py-16 text-red-600">
-        <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
-        <p id="errorMessage" class="text-lg font-bold">স্টেটমেন্ট লোড করা সম্ভব হয়নি!</p>
+      <div id="loadingState" class="text-center py-20">
+        <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-3"></i>
+        <p class="text-gray-600 font-bold">স্টেটমেন্ট ডাটা তৈরি হচ্ছে...</p>
       </div>
 
       <!-- Content State -->
-      <div id="statementContent" class="hidden space-y-8">
+      <div id="statementContent" class="hidden">
+        
         <!-- Header -->
-        <div class="border-b-2 border-indigo-900 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div class="text-center border-b-2 border-gray-800 pb-4 mb-6">
+          <h1 class="text-3xl font-black tracking-tight text-gray-900">মেস ম্যানেজার — মাসিক হিসাব বিবরণী</h1>
+          <p class="text-sm font-semibold text-gray-600 mt-1" id="sheetMonthHeader">মাস: -</p>
+        </div>
+
+        <!-- Top Left Summary (Exact format as in user image) -->
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start gap-4">
+          <div class="bg-gray-50 border-2 border-gray-800 p-4 rounded-xl font-mono text-sm leading-relaxed min-w-[320px]">
+            <div class="flex justify-between py-0.5">
+              <span class="font-bold text-gray-700">Total Deposit</span>
+              <span class="font-extrabold text-gray-900">— <span id="lblTotalDeposit">0</span> ৳</span>
+            </div>
+            <div class="flex justify-between py-0.5">
+              <span class="font-bold text-gray-700">Total Cost</span>
+              <span class="font-extrabold text-gray-900">— <span id="lblTotalCost">0</span> ৳</span>
+            </div>
+            <div class="flex justify-between py-0.5">
+              <span class="font-bold text-gray-700">Total Meals</span>
+              <span class="font-extrabold text-gray-900">— <span id="lblTotalMeals">0</span></span>
+            </div>
+            <div class="flex justify-between py-0.5 border-t border-gray-300 mt-1 pt-1">
+              <span class="font-bold text-gray-700">Per/meal</span>
+              <span class="font-extrabold text-indigo-900">— <span id="lblPerMealRate">0.00</span> ৳</span>
+            </div>
+            <div class="flex justify-between py-0.5 border-t border-gray-300 mt-1 pt-1 text-xs">
+              <span class="font-bold text-gray-700">Additional</span>
+              <span class="font-extrabold text-gray-900" id="lblAdditionalFormula">(0 ৳ ÷ 0) = 0 ৳</span>
+            </div>
+          </div>
+
+          <div class="text-right text-xs text-gray-500 font-sans mt-2">
+            <p><strong>প্রস্তুতকাল:</strong> <span id="lblGeneratedDate">-</span></p>
+            <p class="mt-1 text-gray-400">মেস সফটওয়্যার সিস্টেম দ্বারা সংকলিত</p>
+          </div>
+        </div>
+
+        <!-- Main Ledger Table (7 exact columns from user image) -->
+        <div class="overflow-x-auto mb-8">
+          <table class="ledger-table w-full border-collapse text-center text-sm">
+            <thead>
+              <tr class="bg-gray-200 text-gray-900 font-extrabold text-xs uppercase tracking-wider">
+                <th class="p-3 w-1/5 text-left">Name</th>
+                <th class="p-3">Total Meals</th>
+                <th class="p-3">Total Deposit</th>
+                <th class="p-3">Additional</th>
+                <th class="p-3">Total Cost</th>
+                <th class="p-3 bg-green-50 text-green-950 font-black">Meal Get<br><span class="text-[10px] font-normal">(টাকা পাবে)</span></th>
+                <th class="p-3 bg-red-50 text-red-950 font-black">Meal Send<br><span class="text-[10px] font-normal">(টাকা দেবে)</span></th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody" class="font-medium text-gray-800">
+              <!-- Dynamically populated rows -->
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-100 font-black text-gray-900 text-sm">
+                <td class="p-3 text-left">Total</td>
+                <td class="p-3" id="footTotalMeals">0</td>
+                <td class="p-3" id="footTotalDeposit">0 ৳</td>
+                <td class="p-3" id="footTotalAdditional">0 ৳</td>
+                <td class="p-3" id="footTotalCost">0 ৳</td>
+                <td class="p-3 bg-green-100 text-green-900 font-black" id="footTotalMealGet">0 ৳</td>
+                <td class="p-3 bg-red-100 text-red-900 font-black" id="footTotalMealSend">0 ৳</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Expense Details Summary (Optional breakdown) -->
+        <div id="expenseListBlock" class="mb-10 text-xs text-gray-600">
+          <h4 class="font-bold text-gray-800 text-sm border-b border-gray-300 pb-1 mb-2">
+            বাজার ও খরচের তালিকা (Bazar Expense Summary)
+          </h4>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2" id="expensePills">
+            <!-- Dynamically populated expenses -->
+          </div>
+        </div>
+
+        <!-- Signature Block -->
+        <div class="pt-12 mt-12 border-t-2 border-dashed border-gray-400 grid grid-cols-2 gap-8 text-center text-xs text-gray-700">
           <div>
-            <h1 class="text-3xl font-extrabold text-indigo-950 flex items-center gap-2.5">
-              <i class="fas fa-home text-indigo-600"></i> মেস ম্যানেজার
-            </h1>
-            <p class="text-gray-500 text-sm mt-1">স্বয়ংক্রিয় মেস মিল ও হিসাব ব্যবস্থাপনা স্টেটমেন্ট</p>
-          </div>
-          <div class="text-left md:text-right">
-            <span class="inline-block bg-indigo-50 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200 mb-1">
-              মাসিক আর্থিক বিবরণী
-            </span>
-            <p class="text-lg font-bold text-gray-800" id="headerMonthTitle">মাস: -</p>
-            <p class="text-xs text-gray-400" id="headerGeneratedDate">তৈরির তারিখ: -</p>
-          </div>
-        </div>
-
-        <!-- Summary KPI Cards -->
-        <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
-            মাসের সারসংক্ষেপ (Monthly Overview)
-          </h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl">
-              <p class="text-xs text-indigo-700 font-medium">মোট জমা (Total Deposit)</p>
-              <h2 id="sumTotalDeposit" class="text-xl font-bold text-indigo-950 mt-0.5">৳ 0</h2>
-            </div>
-            <div class="bg-red-50 border border-red-100 p-4 rounded-xl">
-              <p class="text-xs text-red-700 font-medium">মোট খরচ (Total Expenses)</p>
-              <h2 id="sumTotalExpenses" class="text-xl font-bold text-red-950 mt-0.5">৳ 0</h2>
-            </div>
-            <div class="bg-yellow-50 border border-yellow-100 p-4 rounded-xl">
-              <p class="text-xs text-yellow-800 font-medium">মোট মিল (Total Meals)</p>
-              <h2 id="sumTotalMeals" class="text-xl font-bold text-yellow-950 mt-0.5">0</h2>
-            </div>
-            <div class="bg-green-50 border border-green-100 p-4 rounded-xl">
-              <p class="text-xs text-green-700 font-medium">চূড়ান্ত মিল রেট (Meal Rate)</p>
-              <h2 id="sumMealRate" class="text-xl font-bold text-green-950 mt-0.5">৳ 0.00</h2>
-            </div>
-          </div>
-        </div>
-
-        <!-- Member Breakdown Table -->
-        <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
-            সদস্যওয়ারী হিসাব বিবরণী (Member Breakdown)
-          </h3>
-          <div class="overflow-x-auto border border-gray-200 rounded-xl">
-            <table class="w-full text-left border-collapse text-sm">
-              <thead class="bg-indigo-900 text-white text-xs uppercase font-semibold">
-                <tr>
-                  <th class="p-3">ক্রমিক</th>
-                  <th class="p-3">সদস্যের নাম</th>
-                  <th class="p-3">রুম নং</th>
-                  <th class="p-3 text-right">মোট জমা (৳)</th>
-                  <th class="p-3 text-center">সকাল</th>
-                  <th class="p-3 text-center">রাত</th>
-                  <th class="p-3 text-center">মোট মিল</th>
-                  <th class="p-3 text-right">মিল খরচ (৳)</th>
-                  <th class="p-3 text-right">অবস্থা (ব্যালেন্স)</th>
-                </tr>
-              </thead>
-              <tbody id="memberTableBody" class="divide-y divide-gray-200">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Bazar and Expense Breakdown (if any) -->
-        <div id="expenseSection">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">
-            বাজার ও খরচের তালিকা (Expense Details)
-          </h3>
-          <div class="overflow-x-auto border border-gray-200 rounded-xl max-h-80 overflow-y-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-gray-100 text-gray-700 font-semibold border-b">
-                <tr>
-                  <th class="p-2.5">তারিখ</th>
-                  <th class="p-2.5">বিবরণ / নোট</th>
-                  <th class="p-2.5 text-right">পরিমাণ (৳)</th>
-                </tr>
-              </thead>
-              <tbody id="expenseTableBody" class="divide-y divide-gray-200">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Signatures & Footer -->
-        <div class="pt-12 mt-12 border-t border-gray-200 grid grid-cols-2 gap-8 text-center text-xs text-gray-600">
-          <div>
-            <div class="w-48 border-b border-gray-400 mx-auto mb-1"></div>
-            <p class="font-bold">মেস ম্যানেজার স্বাক্ষর</p>
+            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1"></div>
+            <p class="font-bold text-sm">মেস ম্যানেজার স্বাক্ষর</p>
           </div>
           <div>
-            <div class="w-48 border-b border-gray-400 mx-auto mb-1"></div>
-            <p class="font-bold">সদস্য প্রতিনিধি স্বাক্ষর</p>
+            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1"></div>
+            <p class="font-bold text-sm">সদস্য প্রতিনিধি স্বাক্ষর</p>
           </div>
         </div>
 
-        <div class="text-center text-[11px] text-gray-400 pt-4">
-          <p>এই স্টেটমেন্টটি মেস ম্যানেজার সিস্টেম দ্বারা সংরক্ষিত ৩ মাসের মাসিক ব্যাকআপ ফাইল থেকে সংকলিত।</p>
-        </div>
       </div>
     </div>
 
-    <!-- Script to load and process statement -->
+    <!-- Script to calculate and render -->
     <script>
       const urlParams = new URLSearchParams(window.location.search);
-      const targetMonth = urlParams.get("month");
+      const targetMonth = urlParams.get("month") || "";
+      let backupRawData = null;
 
-      async function loadStatement() {
+      async function initStatement() {
         if (!targetMonth) {
-          showError("কোনো মাস উল্লেখ করা হয়নি!");
+          alert("কোনো মাস উল্লেখ করা হয়নি!");
           return;
         }
 
-        document.getElementById("statementMonthLabel").innerText = `মাস: ${targetMonth}`;
+        document.getElementById("topMonthBadge").innerText = `মাস: ${targetMonth}`;
 
         try {
           const res = await fetch(`/api/backups/data/${targetMonth}`);
-          if (!res.ok) {
-            throw new Error("এই মাসের ব্যাকআপ ডাটা পাওয়া যায়নি!");
-          }
+          if (!res.ok) throw new Error("ব্যাকআপ ডাটা পাওয়া যায়নি!");
 
-          const data = await res.json();
-          renderStatement(data);
+          backupRawData = await res.json();
+          recalculateStatement();
         } catch (err) {
           console.error(err);
-          showError(err.message || "সার্ভার এরর!");
+          document.getElementById("loadingState").innerHTML = `
+            <div class="text-red-600 font-bold">
+              <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+              <p>স্টেটমেন্ট লোড করা সম্ভব হয়নি!</p>
+            </div>
+          `;
         }
       }
 
-      function showError(msg) {
-        document.getElementById("loadingState").classList.add("hidden");
-        document.getElementById("errorState").classList.remove("hidden");
-        document.getElementById("errorMessage").innerText = msg;
-      }
+      function recalculateStatement() {
+        if (!backupRawData) return;
 
-      function renderStatement(data) {
         document.getElementById("loadingState").classList.add("hidden");
         document.getElementById("statementContent").classList.remove("hidden");
 
-        const summary = data.summary || {};
-        document.getElementById("headerMonthTitle").innerText = `মাস: ${data.month}`;
-        document.getElementById("headerGeneratedDate").innerText = `জেনারেট সময়: ${new Date(data.generatedAt).toLocaleString("bn-BD")}`;
+        const summary = backupRawData.summary || {};
+        const members = backupRawData.members || [];
+        const memberSummaries = backupRawData.memberSummaries || [];
+        const expenses = backupRawData.expenses || [];
 
-        document.getElementById("sumTotalDeposit").innerText = `৳ ${summary.totalDeposits ?? 0}`;
-        document.getElementById("sumTotalExpenses").innerText = `৳ ${summary.totalExpenses ?? 0}`;
-        document.getElementById("sumTotalMeals").innerText = `${summary.totalMeals ?? 0}`;
-        document.getElementById("sumMealRate").innerText = `৳ ${summary.mealRate ?? 0}`;
+        // Additional Cost handling
+        const additionalInput = document.getElementById("inputAdditionalCost");
+        const totalAdditional = parseFloat(additionalInput.value) || 0;
+        const memberCount = memberSummaries.length || 1;
+        const perMemberAdditional = Math.round((totalAdditional / memberCount) * 100) / 100;
 
-        // Populate Members
-        const mBody = document.getElementById("memberTableBody");
-        mBody.innerHTML = "";
-        const memberSummaries = data.memberSummaries || [];
+        // Base calculations
+        const totalDeposit = summary.totalDeposits || 0;
+        const totalCost = summary.totalExpenses || 0;
+        const totalMeals = summary.totalMeals || 0;
+        const perMealRate = totalMeals > 0 ? (totalCost / totalMeals) : 0;
 
-        if (memberSummaries.length === 0) {
-          mBody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-gray-400">কোনো মেম্বার ডাটা নেই</td></tr>`;
-        } else {
-          memberSummaries.forEach((m, idx) => {
-            const isNegative = m.balance < 0;
-            mBody.innerHTML += `
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-3 text-gray-500 font-mono">${idx + 1}</td>
-                <td class="p-3 font-bold text-gray-900">${m.name}</td>
-                <td class="p-3 text-gray-600">${m.room || "-"}</td>
-                <td class="p-3 text-right font-medium text-indigo-900">৳ ${m.totalDeposit}</td>
-                <td class="p-3 text-center text-gray-700">${m.sokalMeals}</td>
-                <td class="p-3 text-center text-gray-700">${m.ratMeals}</td>
-                <td class="p-3 text-center font-bold text-yellow-800">${m.totalMeals}</td>
-                <td class="p-3 text-right font-medium text-gray-800">৳ ${m.mealCost}</td>
-                <td class="p-3 text-right font-bold ${isNegative ? "text-red-600" : "text-green-700"}">
-                  ৳ ${m.balance} ${isNegative ? "(বকেয়া)" : "(পাবে)"}
-                </td>
-              </tr>
-            `;
-          });
-        }
+        // Fill top-left summary block
+        document.getElementById("sheetMonthHeader").innerText = `মাস: ${backupRawData.month}`;
+        document.getElementById("lblTotalDeposit").innerText = totalDeposit;
+        document.getElementById("lblTotalCost").innerText = totalCost;
+        document.getElementById("lblTotalMeals").innerText = totalMeals;
+        document.getElementById("lblPerMealRate").innerText = perMealRate.toFixed(2);
+        document.getElementById("lblAdditionalFormula").innerText = `(${totalAdditional} ৳ ÷ ${memberCount}) = ${perMemberAdditional} ৳`;
+        document.getElementById("lblGeneratedDate").innerText = new Date(backupRawData.generatedAt).toLocaleString("bn-BD");
 
-        // Populate Expenses
-        const expBody = document.getElementById("expenseTableBody");
-        expBody.innerHTML = "";
-        const expenses = data.expenses || [];
+        // Table Rows
+        const tbody = document.getElementById("ledgerTableBody");
+        tbody.innerHTML = "";
+
+        let sumMeals = 0;
+        let sumDeposit = 0;
+        let sumAdditional = 0;
+        let sumCost = 0;
+        let sumMealGet = 0;
+        let sumMealSend = 0;
+
+        memberSummaries.forEach((m) => {
+          const mMeals = m.totalMeals || 0;
+          const mDeposit = m.totalDeposit || 0;
+          const mMealCostOnly = mMeals * perMealRate;
+          const mTotalCost = Math.round((mMealCostOnly + perMemberAdditional) * 100) / 100;
+
+          // Comparison between Deposit and Total Cost
+          let mealGet = 0;
+          let mealSend = 0;
+
+          if (mDeposit >= mTotalCost) {
+            mealGet = Math.round((mDeposit - mTotalCost) * 100) / 100;
+          } else {
+            mealSend = Math.round((mTotalCost - mDeposit) * 100) / 100;
+          }
+
+          sumMeals += mMeals;
+          sumDeposit += mDeposit;
+          sumAdditional += perMemberAdditional;
+          sumCost += mTotalCost;
+          sumMealGet += mealGet;
+          sumMealSend += mealSend;
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50 transition">
+              <td class="p-2.5 text-left font-bold text-gray-900 border">${m.name}</td>
+              <td class="p-2.5 font-bold border">${mMeals}</td>
+              <td class="p-2.5 font-mono border">${mDeposit} ৳</td>
+              <td class="p-2.5 font-mono border text-gray-600">${perMemberAdditional} ৳</td>
+              <td class="p-2.5 font-bold font-mono border text-gray-900">${mTotalCost} ৳</td>
+              <td class="p-2.5 font-black font-mono border text-green-700 bg-green-50/50">
+                ${mealGet > 0 ? `${mealGet} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
+              </td>
+              <td class="p-2.5 font-black font-mono border text-red-600 bg-red-50/50">
+                ${mealSend > 0 ? `${mealSend} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
+              </td>
+            </tr>
+          `;
+        });
+
+        // Totals row
+        document.getElementById("footTotalMeals").innerText = sumMeals;
+        document.getElementById("footTotalDeposit").innerText = `${sumDeposit} ৳`;
+        document.getElementById("footTotalAdditional").innerText = `${Math.round(sumAdditional)} ৳`;
+        document.getElementById("footTotalCost").innerText = `${Math.round(sumCost)} ৳`;
+        document.getElementById("footTotalMealGet").innerText = `${Math.round(sumMealGet)} ৳`;
+        document.getElementById("footTotalMealSend").innerText = `${Math.round(sumMealSend)} ৳`;
+
+        // Expenses Pill list
+        const expContainer = document.getElementById("expensePills");
+        expContainer.innerHTML = "";
         if (expenses.length === 0) {
-          expBody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-gray-400">এই মাসে কোনো খরচের এন্ট্রি নেই</td></tr>`;
+          expContainer.innerHTML = `<span class="text-gray-400 italic">কোনো খরচের এন্ট্রি নেই</span>`;
         } else {
           expenses.forEach((e) => {
-            expBody.innerHTML += `
-              <tr>
-                <td class="p-2.5 text-gray-500">${e.date}</td>
-                <td class="p-2.5 font-medium text-gray-800">${e.note || "সাধারণ বাজার"}</td>
-                <td class="p-2.5 text-right font-bold text-red-600">৳ ${e.amount}</td>
-              </tr>
+            expContainer.innerHTML += `
+              <div class="bg-gray-50 border border-gray-200 px-2 py-1 rounded flex justify-between">
+                <span>${e.date}: ${e.note || "বাজার"}</span>
+                <strong class="text-red-700">${e.amount} ৳</strong>
+              </div>
             `;
           });
         }
@@ -280,13 +344,13 @@
         const btn = document.getElementById("btnDownloadPdf");
         
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> PDF প্রস্তুত হচ্ছে...`;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> PDF হচ্ছে...`;
 
         const opt = {
-          margin: [10, 10, 10, 10],
+          margin: [8, 8, 8, 8],
           filename: `mess-statement-${targetMonth}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
+          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         };
 
@@ -300,13 +364,13 @@
           })
           .catch((err) => {
             console.error(err);
-            alert("PDF ডাউনলোডে সমস্যা হয়েছে। দয়া করে 'প্রিন্ট করুন' বাটন থেকে 'Save as PDF' নির্বাচন করুন।");
+            alert("PDF ডাউনলোডে সমস্যা হলে 'প্রিন্ট করুন' বাটন থেকে 'Save as PDF' সিলেক্ট করুন।");
             btn.disabled = false;
             btn.innerHTML = `<i class="fas fa-file-pdf"></i> PDF ডাউনলোড করুন`;
           });
       }
 
-      window.addEventListener("DOMContentLoaded", loadStatement);
+      window.addEventListener("DOMContentLoaded", initStatement);
     </script>
   </body>
 </html>
