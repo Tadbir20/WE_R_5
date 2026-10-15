@@ -88,13 +88,20 @@ async function renderBackups() {
           </div>
         </div>
 
-        <div class="flex gap-2 pt-2 border-t border-gray-100">
+        <div class="flex flex-col gap-2 pt-3 border-t border-gray-100">
+          <a
+            href="statement.html?month=${b.month}"
+            target="_blank"
+            class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <i class="fas fa-file-pdf text-base"></i> PDF স্টেটমেন্ট দেখুন / ডাউনলোড
+          </a>
           <a
             href="${API_BASE}/backups/download/${b.month}"
             download
-            class="flex-1 bg-indigo-600 text-white text-center py-2.5 rounded-lg hover:bg-indigo-700 font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-center py-2 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-1.5"
           >
-            <i class="fas fa-file-download"></i> JSON ডাউনলোড
+            <i class="fas fa-file-code"></i> ব্যাকআপ ফাইল (JSON) ডাউনলোড
           </a>
         </div>
       `;

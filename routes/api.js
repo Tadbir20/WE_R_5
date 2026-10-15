@@ -183,4 +183,16 @@ router.get("/backups/download/:month", (req, res) => {
   }
 });
 
+router.get("/backups/data/:month", (req, res) => {
+  try {
+    const data = backupService.getBackupData(req.params.month);
+    if (!data) {
+      return res.status(404).json({ error: "Backup data not found for this month" });
+    }
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

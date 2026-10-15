@@ -167,11 +167,24 @@ function getBackupFilePath(monthStr) {
   return null;
 }
 
+// Get backup JSON content
+function getBackupData(monthStr) {
+  const filePath = getBackupFilePath(monthStr);
+  if (!filePath) return null;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (err) {
+    console.error(`Error reading backup data for ${monthStr}:`, err);
+    return null;
+  }
+}
+
 module.exports = {
   backupLast3Months,
   generateMonthBackup,
   listBackups,
   getBackupFilePath,
+  getBackupData,
   getLast3Months,
   BACKUP_DIR,
 };
