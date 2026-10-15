@@ -54,8 +54,12 @@ async function generateMonthBackup(monthStr) {
     const mTotalDeposit = memDeposits.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
     const mSokal = memMeals.reduce((sum, meal) => sum + (Number(meal.sokal) || 0), 0);
     const mRat = memMeals.reduce((sum, meal) => sum + (Number(meal.rat) || 0), 0);
-    const mTotalMeals = mSokal + mRat;
-    const mMealCost = Number((mTotalMeals * mealRate).toFixed(2));
+    const mTotalMeals = memMeals.reduce(
+      (sum, meal) => sum + (meal.count !== undefined ? Number(meal.count) : (Number(meal.sokal) || 0) + (Number(meal.rat) || 0)),
+      0
+    );
+    const rawRate = totalMeals > 0 ? totalExpenses / totalMeals : 0;
+    const mMealCost = Number((mTotalMeals * rawRate).toFixed(2));
     const mBalance = Number((mTotalDeposit - mMealCost).toFixed(2));
 
     return {

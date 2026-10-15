@@ -312,8 +312,15 @@ router.get("/backups/download/:month", (req, res) => {
   }
 });
 
-router.get("/backups/data/:month", (req, res) => {
+router.get("/backups/data/:month", async (req, res) => {
   try {
+    // Generate fresh backup to ensure 100% sync with live database
+    try {
+      await backupService.generateMonthBackup(req.params.month);
+    } catch (genErr) {
+      console.warn("Live backup refresh error (falling back to existing):", genErr.message);
+    }
+
     const data = backupService.getBackupData(req.params.month);
     if (!data) {
       return res.status(404).json({ error: "Backup data not found for this month" });

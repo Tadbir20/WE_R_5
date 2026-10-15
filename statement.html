@@ -232,6 +232,11 @@
 
         document.getElementById("topMonthBadge").innerText = `মাস: ${targetMonth}`;
 
+        const savedAdd = localStorage.getItem("additionalCost_" + targetMonth);
+        if (savedAdd !== null) {
+          document.getElementById("inputAdditionalCost").value = savedAdd;
+        }
+
         try {
           const res = await fetch(`/api/backups/data/${targetMonth}`);
           if (!res.ok) throw new Error("ব্যাকআপ ডাটা পাওয়া যায়নি!");
@@ -261,19 +266,22 @@
         // Additional Cost handling
         const additionalInput = document.getElementById("inputAdditionalCost");
         const totalAdditional = parseFloat(additionalInput.value) || 0;
+        localStorage.setItem("additionalCost_" + targetMonth, totalAdditional);
+
         const memberCount = memberSummaries.length || 1;
         const perMemberAdditional = Math.round((totalAdditional / memberCount) * 100) / 100;
 
-        // Base calculations
+        // Base calculations matching dashboard
         const totalDeposit = summary.totalDeposits || 0;
         const totalCost = summary.totalExpenses || 0;
         const totalMeals = summary.totalMeals || 0;
-        const perMealRate = totalMeals > 0 ? (totalCost / totalMeals) : 0;
+        const perMealRate = totalMeals > 0 ? totalCost / totalMeals : 0;
+        const grandTotalCost = Math.round((totalCost + totalAdditional) * 100) / 100;
 
         // Fill top-left summary block
         document.getElementById("sheetMonthHeader").innerText = `Month / মাস: ${backupRawData.month}`;
         document.getElementById("lblTotalDeposit").innerText = totalDeposit;
-        document.getElementById("lblTotalCost").innerText = totalCost;
+        document.getElementById("lblTotalCost").innerText = totalAdditional > 0 ? `${grandTotalCost} (${totalCost} + ${totalAdditional})` : totalCost;
         document.getElementById("lblTotalMeals").innerText = totalMeals;
         document.getElementById("lblPerMealRate").innerText = perMealRate.toFixed(2);
         document.getElementById("lblAdditionalFormula").innerText = `(${totalAdditional} ৳ ÷ ${memberCount}) = ${perMemberAdditional} ৳`;
@@ -319,12 +327,12 @@
               <td class="p-3 font-bold border">${mMeals}</td>
               <td class="p-3 font-mono border">${mDeposit} ৳</td>
               <td class="p-3 font-mono border text-gray-600">${perMemberAdditional} ৳</td>
-              <td class="p-3 font-bold font-mono border text-gray-900">${mTotalCost} ৳</td>
+              <td class="p-3 font-bold font-mono border text-gray-900">${mTotalCost.toFixed(2)} ৳</td>
               <td class="p-3 font-black font-mono border text-green-700 bg-green-50/50">
-                ${mealGet > 0 ? `${mealGet} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
+                ${mealGet > 0 ? `${mealGet.toFixed(2)} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
               </td>
               <td class="p-3 font-black font-mono border text-red-600 bg-red-50/50">
-                ${mealSend > 0 ? `${mealSend} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
+                ${mealSend > 0 ? `${mealSend.toFixed(2)} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
               </td>
             </tr>
           `;
@@ -333,10 +341,10 @@
         // Totals row
         document.getElementById("footTotalMeals").innerText = sumMeals;
         document.getElementById("footTotalDeposit").innerText = `${sumDeposit} ৳`;
-        document.getElementById("footTotalAdditional").innerText = `${Math.round(sumAdditional)} ৳`;
-        document.getElementById("footTotalCost").innerText = `${Math.round(sumCost)} ৳`;
-        document.getElementById("footTotalMealGet").innerText = `${Math.round(sumMealGet)} ৳`;
-        document.getElementById("footTotalMealSend").innerText = `${Math.round(sumMealSend)} ৳`;
+        document.getElementById("footTotalAdditional").innerText = `${Number(sumAdditional.toFixed(2))} ৳`;
+        document.getElementById("footTotalCost").innerText = `${sumCost.toFixed(2)} ৳`;
+        document.getElementById("footTotalMealGet").innerText = `${sumMealGet.toFixed(2)} ৳`;
+        document.getElementById("footTotalMealSend").innerText = `${sumMealSend.toFixed(2)} ৳`;
       }
 
       async function downloadPDF() {
