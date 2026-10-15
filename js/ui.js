@@ -10,6 +10,7 @@ function switchTab(tabId) {
     "expenses",
     "member-details",
     "my-details",
+    "backups",
   ];
   tabs.forEach((t) => {
     const section = document.getElementById(`tab-${t}`);
@@ -26,6 +27,7 @@ function switchTab(tabId) {
   // Refresh views if necessary
   if (tabId === "dashboard") updateDashboard();
   if (tabId === "member-details") renderMemberDetails("md");
+  if (tabId === "backups") renderBackups();
   if (tabId === "my-details" && currentUser && currentUser.role === "member") {
     document.getElementById("detailsMemberSelect").value = currentUser.memberId;
     renderMemberDetails("mydetails", currentUser.memberId);

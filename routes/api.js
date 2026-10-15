@@ -149,4 +149,38 @@ router.post("/meals", async (req, res) => {
   }
 });
 
+// ----- Backup API (Last 3 Months) -----
+const backupService = require("../services/backupService");
+
+router.get("/backups", (req, res) => {
+  try {
+    const list = backupService.listBackups();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/backups/create", async (req, res) => {
+  try {
+    const months = await backupService.backupLast3Months();
+    const list = backupService.listBackups();
+    res.json({ success: true, backedUpMonths: months, backups: list });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/backups/download/:month", (req, res) => {
+  try {
+    const filePath = backupService.getBackupFilePath(req.params.month);
+    if (!filePath) {
+      return res.status(404).json({ error: "Backup file not found for this month" });
+    }
+    res.download(filePath, `mess-backup-${req.params.month}.json`);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

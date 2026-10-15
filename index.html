@@ -197,6 +197,13 @@
             <i class="fas fa-user-circle"></i> সদস্যের বিস্তারিত
           </button>
           <button
+            onclick="switchTab('backups')"
+            id="nav-backups"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
+          >
+            <i class="fas fa-database"></i> ৩ মাসের ব্যাকআপ (Backup)
+          </button>
+          <button
             onclick="switchTab('my-details')"
             id="nav-my-details"
             class="member-only hidden w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-800 transition"
@@ -850,6 +857,43 @@
               </div>
             </div>
           </section>
+
+          <!-- 8. Backups Tab (Admin Only) -->
+          <section id="tab-backups" class="space-y-6 hidden admin-only-section">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800">
+                  বিগত ৩ মাসের ব্যাকআপ ও আর্কাইভ (3-Month Backup)
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                  সিস্টেম স্বয়ংক্রিয়ভাবে বিগত ৩ মাসের পূর্ণাঙ্গ হিসাবের ফাইল তৈরি ও সংরক্ষণ করে রাখে।
+                </p>
+              </div>
+              <button
+                id="backupNowBtn"
+                onclick="triggerManualBackup()"
+                class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition font-semibold text-sm flex items-center justify-center gap-2 shadow"
+              >
+                <i class="fas fa-sync-alt"></i> এখনই নতুন ব্যাকআপ নিন
+              </button>
+            </div>
+
+            <!-- Policy info box -->
+            <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl flex items-start gap-3">
+              <i class="fas fa-shield-alt text-indigo-600 text-xl mt-0.5"></i>
+              <div class="text-sm text-indigo-950">
+                <p class="font-bold">মাসভিত্তিক ফাইল ব্যাকআপ নীতি:</p>
+                <p class="text-indigo-800 mt-0.5">
+                  প্রতি মাসের জমা, খরচ, মিল এবং সদস্যদের বিস্তারিত হিসাব আলাদা আলাদা ফাইলে (JSON ফরম্যাটে) সংরক্ষিত থাকে। নিয়মানুযায়ী সিস্টেমে সর্বদা <strong>বিগত ৩ মাসের</strong> ব্যাকআপ ফাইল রাখা হয় এবং ৩ মাসের চেয়ে পুরনো ফাইল স্বয়ংক্রিয়ভাবে পরিষ্কার করা হয়।
+                </p>
+              </div>
+            </div>
+
+            <!-- Backups Grid -->
+            <div id="backupsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Cards rendered dynamically by backups.js -->
+            </div>
+          </section>
         </main>
       </div>
     </div>
@@ -864,6 +908,7 @@
     <script src="js/expenses.js"></script>
     <script src="js/meals.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/backups.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

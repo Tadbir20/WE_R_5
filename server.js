@@ -33,8 +33,28 @@ async function startServer() {
 
   mongoose
     .connect(mongoUri)
-    .then(() => {
+    .then(async () => {
       console.log(`MongoDB connected successfully at ${mongoUri}`);
+      
+      // Auto-run backup for the last 3 months
+      const backupService = require("./services/backupService");
+      try {
+        const backedUp = await backupService.backupLast3Months();
+        console.log(`Auto-backup initialized for last 3 months: ${backedUp.join(", ")}`);
+      } catch (backupErr) {
+        console.error("Initial backup error:", backupErr);
+      }
+
+      // Schedule daily backup check (every 24 hours)
+      setInterval(async () => {
+        try {
+          await backupService.backupLast3Months();
+          console.log("Daily 3-month rolling backup completed.");
+        } catch (e) {
+          console.error("Daily backup error:", e);
+        }
+      }, 24 * 60 * 60 * 1000);
+
       app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
       });
