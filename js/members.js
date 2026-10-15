@@ -38,8 +38,11 @@ function renderMembers() {
                 <td class="p-3 font-medium">${m.name}</td>
                 <td class="p-3">${m.phone}</td>
                 <td class="p-3">${m.room}</td>
-                <td class="p-3">
-                    <button onclick="deleteMember('${m.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                <td class="p-3 flex items-center gap-2">
+                    <button onclick="openMemberDossier('${m.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                        <i class="fas fa-folder-open"></i> ফাইল / ছবি
+                    </button>
+                    <button onclick="deleteMember('${m.id}')" class="text-red-500 hover:text-red-700 p-1 transition"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `;

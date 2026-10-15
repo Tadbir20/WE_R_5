@@ -11,6 +11,7 @@ function switchTab(tabId) {
     "member-details",
     "my-details",
     "backups",
+    "member-files",
   ];
   tabs.forEach((t) => {
     const section = document.getElementById(`tab-${t}`);
@@ -28,6 +29,9 @@ function switchTab(tabId) {
   if (tabId === "dashboard") updateDashboard();
   if (tabId === "member-details") renderMemberDetails("md");
   if (tabId === "backups") renderBackups();
+  if (tabId === "member-files" && typeof renderMemberFilesList === "function") {
+    renderMemberFilesList();
+  }
   if (tabId === "my-details" && currentUser && currentUser.role === "member") {
     document.getElementById("detailsMemberSelect").value = currentUser.memberId;
     renderMemberDetails("mydetails", currentUser.memberId);

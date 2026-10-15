@@ -14,6 +14,7 @@ app.use(express.json());
 
 // Serve static frontend files (html, css, js)
 app.use(express.static(__dirname));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));

@@ -9,6 +9,11 @@ scratch/
 *.log
 backups/*.json
 
+# Uploaded Member Photos and Documents (Private)
+uploads/*
+!uploads/.gitkeep
+!uploads/members/.gitkeep
+
 # OS generated files
 .DS_Store
 Thumbs.db
