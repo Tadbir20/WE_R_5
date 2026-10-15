@@ -11,19 +11,24 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <!-- Google Fonts: Noto Sans Bengali & Poppins for crisp text rendering -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-      
       body {
-        font-family: 'Hind Siliguri', sans-serif;
+        font-family: 'Noto Sans Bengali', 'Poppins', 'Segoe UI', sans-serif;
       }
 
-      /* Custom Ledger Table Borders */
+      /* Clean Ledger Table Borders */
       .ledger-table th, 
       .ledger-table td {
-        border: 1.5px solid #374151 !important;
+        border: 1.5px solid #1f2937 !important;
       }
 
       @media print {
@@ -39,17 +44,17 @@
           box-shadow: none !important;
           border: none !important;
           max-width: 100% !important;
-          padding: 15px !important;
+          padding: 10px !important;
         }
         @page {
           size: A4 portrait;
-          margin: 10mm;
+          margin: 8mm;
         }
       }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen py-6 px-3 text-gray-900">
-    <!-- Top Action Bar (Hidden during print / PDF) -->
+    <!-- Top Action Bar (Hidden in Print/PDF) -->
     <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-200 no-print flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <a href="/" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm flex items-center gap-1.5">
@@ -95,7 +100,7 @@
       </div>
     </div>
 
-    <!-- Main Printable Statement Sheet (Styled exactly like handwritten mess sheet) -->
+    <!-- Main Printable Statement Sheet -->
     <div id="statementDocument" class="statement-sheet max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-300">
       
       <!-- Loading State -->
@@ -107,55 +112,76 @@
       <!-- Content State -->
       <div id="statementContent" class="hidden">
         
-        <!-- Header -->
-        <div class="text-center border-b-2 border-gray-800 pb-4 mb-6">
-          <h1 class="text-3xl font-black tracking-tight text-gray-900">মেস ম্যানেজার — মাসিক হিসাব বিবরণী</h1>
-          <p class="text-sm font-semibold text-gray-600 mt-1" id="sheetMonthHeader">মাস: -</p>
+        <!-- Header (Bilingual English & Bengali) -->
+        <div class="text-center border-b-2 border-gray-900 pb-4 mb-6">
+          <h1 class="text-2xl md:text-3xl font-black tracking-tight text-gray-900">
+            মেস ম্যানেজার — মাসিক হিসাব বিবরণী
+          </h1>
+          <p class="text-xs md:text-sm font-semibold tracking-wide text-gray-500 uppercase mt-0.5">
+            MESS MANAGER — MONTHLY FINANCIAL STATEMENT
+          </p>
+          <p class="text-sm font-bold text-indigo-900 mt-2" id="sheetMonthHeader">
+            Month / মাস: -
+          </p>
         </div>
 
-        <!-- Top Left Summary (Exact format as in user image) -->
+        <!-- Top Left Summary (Bilingual Ledger Style) -->
         <div class="mb-6 flex flex-col md:flex-row justify-between items-start gap-4">
-          <div class="bg-gray-50 border-2 border-gray-800 p-4 rounded-xl font-mono text-sm leading-relaxed min-w-[320px]">
-            <div class="flex justify-between py-0.5">
-              <span class="font-bold text-gray-700">Total Deposit</span>
+          <div class="bg-gray-50 border-2 border-gray-900 p-4 rounded-xl text-sm leading-relaxed min-w-[340px]">
+            <div class="flex justify-between py-1">
+              <span class="font-bold text-gray-700">Total Deposit <span class="text-xs font-normal text-gray-500">(মোট জমা)</span></span>
               <span class="font-extrabold text-gray-900">— <span id="lblTotalDeposit">0</span> ৳</span>
             </div>
-            <div class="flex justify-between py-0.5">
-              <span class="font-bold text-gray-700">Total Cost</span>
+            <div class="flex justify-between py-1">
+              <span class="font-bold text-gray-700">Total Cost <span class="text-xs font-normal text-gray-500">(মোট খরচ)</span></span>
               <span class="font-extrabold text-gray-900">— <span id="lblTotalCost">0</span> ৳</span>
             </div>
-            <div class="flex justify-between py-0.5">
-              <span class="font-bold text-gray-700">Total Meals</span>
+            <div class="flex justify-between py-1">
+              <span class="font-bold text-gray-700">Total Meals <span class="text-xs font-normal text-gray-500">(মোট মিল)</span></span>
               <span class="font-extrabold text-gray-900">— <span id="lblTotalMeals">0</span></span>
             </div>
-            <div class="flex justify-between py-0.5 border-t border-gray-300 mt-1 pt-1">
-              <span class="font-bold text-gray-700">Per/meal</span>
+            <div class="flex justify-between py-1 border-t border-gray-300 mt-1 pt-1">
+              <span class="font-bold text-gray-700">Per/meal <span class="text-xs font-normal text-gray-500">(মিল রেট)</span></span>
               <span class="font-extrabold text-indigo-900">— <span id="lblPerMealRate">0.00</span> ৳</span>
             </div>
-            <div class="flex justify-between py-0.5 border-t border-gray-300 mt-1 pt-1 text-xs">
-              <span class="font-bold text-gray-700">Additional</span>
+            <div class="flex justify-between py-1 border-t border-gray-300 mt-1 pt-1 text-xs">
+              <span class="font-bold text-gray-700">Additional <span class="font-normal text-gray-500">(অতিরিক্ত)</span></span>
               <span class="font-extrabold text-gray-900" id="lblAdditionalFormula">(0 ৳ ÷ 0) = 0 ৳</span>
             </div>
           </div>
 
           <div class="text-right text-xs text-gray-500 font-sans mt-2">
-            <p><strong>প্রস্তুতকাল:</strong> <span id="lblGeneratedDate">-</span></p>
-            <p class="mt-1 text-gray-400">মেস সফটওয়্যার সিস্টেম দ্বারা সংকলিত</p>
+            <p><strong>Date / প্রস্তুতকাল:</strong> <span id="lblGeneratedDate">-</span></p>
+            <p class="mt-1 text-gray-400">Generated by Mess Management System</p>
           </div>
         </div>
 
-        <!-- Main Ledger Table (7 exact columns from user image) -->
+        <!-- Main Ledger Table (Bilingual Columns) -->
         <div class="overflow-x-auto mb-8">
           <table class="ledger-table w-full border-collapse text-center text-sm">
             <thead>
               <tr class="bg-gray-200 text-gray-900 font-extrabold text-xs uppercase tracking-wider">
-                <th class="p-3 w-1/5 text-left">Name</th>
-                <th class="p-3">Total Meals</th>
-                <th class="p-3">Total Deposit</th>
-                <th class="p-3">Additional</th>
-                <th class="p-3">Total Cost</th>
-                <th class="p-3 bg-green-50 text-green-950 font-black">Meal Get<br><span class="text-[10px] font-normal">(টাকা পাবে)</span></th>
-                <th class="p-3 bg-red-50 text-red-950 font-black">Meal Send<br><span class="text-[10px] font-normal">(টাকা দেবে)</span></th>
+                <th class="p-3 w-1/5 text-left">
+                  NAME<br><span class="text-[10px] font-normal text-gray-600">সদস্যের নাম</span>
+                </th>
+                <th class="p-3">
+                  TOTAL MEALS<br><span class="text-[10px] font-normal text-gray-600">মোট মিল</span>
+                </th>
+                <th class="p-3">
+                  TOTAL DEPOSIT<br><span class="text-[10px] font-normal text-gray-600">মোট জমা</span>
+                </th>
+                <th class="p-3">
+                  ADDITIONAL<br><span class="text-[10px] font-normal text-gray-600">অতিরিক্ত</span>
+                </th>
+                <th class="p-3">
+                  TOTAL COST<br><span class="text-[10px] font-normal text-gray-600">মোট খরচ</span>
+                </th>
+                <th class="p-3 bg-green-50 text-green-950 font-black">
+                  MEAL GET<br><span class="text-[10px] font-bold text-green-800">(টাকা পাবে)</span>
+                </th>
+                <th class="p-3 bg-red-50 text-red-950 font-black">
+                  MEAL SEND<br><span class="text-[10px] font-bold text-red-800">(টাকা দেবে)</span>
+                </th>
               </tr>
             </thead>
             <tbody id="ledgerTableBody" class="font-medium text-gray-800">
@@ -163,37 +189,29 @@
             </tbody>
             <tfoot>
               <tr class="bg-gray-100 font-black text-gray-900 text-sm">
-                <td class="p-3 text-left">Total</td>
+                <td class="p-3 text-left">Total / সর্বমোট</td>
                 <td class="p-3" id="footTotalMeals">0</td>
                 <td class="p-3" id="footTotalDeposit">0 ৳</td>
                 <td class="p-3" id="footTotalAdditional">0 ৳</td>
                 <td class="p-3" id="footTotalCost">0 ৳</td>
-                <td class="p-3 bg-green-100 text-green-900 font-black" id="footTotalMealGet">0 ৳</td>
-                <td class="p-3 bg-red-100 text-red-900 font-black" id="footTotalMealSend">0 ৳</td>
+                <td class="p-3 bg-green-100 text-green-950 font-black" id="footTotalMealGet">0 ৳</td>
+                <td class="p-3 bg-red-100 text-red-950 font-black" id="footTotalMealSend">0 ৳</td>
               </tr>
             </tfoot>
           </table>
         </div>
 
-        <!-- Expense Details Summary (Optional breakdown) -->
-        <div id="expenseListBlock" class="mb-10 text-xs text-gray-600">
-          <h4 class="font-bold text-gray-800 text-sm border-b border-gray-300 pb-1 mb-2">
-            বাজার ও খরচের তালিকা (Bazar Expense Summary)
-          </h4>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-2" id="expensePills">
-            <!-- Dynamically populated expenses -->
-          </div>
-        </div>
-
         <!-- Signature Block -->
-        <div class="pt-12 mt-12 border-t-2 border-dashed border-gray-400 grid grid-cols-2 gap-8 text-center text-xs text-gray-700">
+        <div class="pt-10 mt-10 border-t-2 border-dashed border-gray-400 grid grid-cols-2 gap-8 text-center text-xs text-gray-700">
           <div>
-            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1"></div>
-            <p class="font-bold text-sm">মেস ম্যানেজার স্বাক্ষর</p>
+            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1.5"></div>
+            <p class="font-bold text-sm">Manager Signature</p>
+            <p class="text-gray-500 text-[11px]">মেস ম্যানেজার স্বাক্ষর</p>
           </div>
           <div>
-            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1"></div>
-            <p class="font-bold text-sm">সদস্য প্রতিনিধি স্বাক্ষর</p>
+            <div class="w-48 border-b-2 border-gray-800 mx-auto mb-1.5"></div>
+            <p class="font-bold text-sm">Member Signature</p>
+            <p class="text-gray-500 text-[11px]">সদস্য প্রতিনিধি স্বাক্ষর</p>
           </div>
         </div>
 
@@ -238,9 +256,7 @@
         document.getElementById("statementContent").classList.remove("hidden");
 
         const summary = backupRawData.summary || {};
-        const members = backupRawData.members || [];
         const memberSummaries = backupRawData.memberSummaries || [];
-        const expenses = backupRawData.expenses || [];
 
         // Additional Cost handling
         const additionalInput = document.getElementById("inputAdditionalCost");
@@ -255,7 +271,7 @@
         const perMealRate = totalMeals > 0 ? (totalCost / totalMeals) : 0;
 
         // Fill top-left summary block
-        document.getElementById("sheetMonthHeader").innerText = `মাস: ${backupRawData.month}`;
+        document.getElementById("sheetMonthHeader").innerText = `Month / মাস: ${backupRawData.month}`;
         document.getElementById("lblTotalDeposit").innerText = totalDeposit;
         document.getElementById("lblTotalCost").innerText = totalCost;
         document.getElementById("lblTotalMeals").innerText = totalMeals;
@@ -299,15 +315,15 @@
 
           tbody.innerHTML += `
             <tr class="hover:bg-gray-50 transition">
-              <td class="p-2.5 text-left font-bold text-gray-900 border">${m.name}</td>
-              <td class="p-2.5 font-bold border">${mMeals}</td>
-              <td class="p-2.5 font-mono border">${mDeposit} ৳</td>
-              <td class="p-2.5 font-mono border text-gray-600">${perMemberAdditional} ৳</td>
-              <td class="p-2.5 font-bold font-mono border text-gray-900">${mTotalCost} ৳</td>
-              <td class="p-2.5 font-black font-mono border text-green-700 bg-green-50/50">
+              <td class="p-3 text-left font-bold text-gray-900 border">${m.name}</td>
+              <td class="p-3 font-bold border">${mMeals}</td>
+              <td class="p-3 font-mono border">${mDeposit} ৳</td>
+              <td class="p-3 font-mono border text-gray-600">${perMemberAdditional} ৳</td>
+              <td class="p-3 font-bold font-mono border text-gray-900">${mTotalCost} ৳</td>
+              <td class="p-3 font-black font-mono border text-green-700 bg-green-50/50">
                 ${mealGet > 0 ? `${mealGet} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
               </td>
-              <td class="p-2.5 font-black font-mono border text-red-600 bg-red-50/50">
+              <td class="p-3 font-black font-mono border text-red-600 bg-red-50/50">
                 ${mealSend > 0 ? `${mealSend} ৳` : `<span class="text-gray-400 font-normal">✗</span>`}
               </td>
             </tr>
@@ -321,36 +337,30 @@
         document.getElementById("footTotalCost").innerText = `${Math.round(sumCost)} ৳`;
         document.getElementById("footTotalMealGet").innerText = `${Math.round(sumMealGet)} ৳`;
         document.getElementById("footTotalMealSend").innerText = `${Math.round(sumMealSend)} ৳`;
-
-        // Expenses Pill list
-        const expContainer = document.getElementById("expensePills");
-        expContainer.innerHTML = "";
-        if (expenses.length === 0) {
-          expContainer.innerHTML = `<span class="text-gray-400 italic">কোনো খরচের এন্ট্রি নেই</span>`;
-        } else {
-          expenses.forEach((e) => {
-            expContainer.innerHTML += `
-              <div class="bg-gray-50 border border-gray-200 px-2 py-1 rounded flex justify-between">
-                <span>${e.date}: ${e.note || "বাজার"}</span>
-                <strong class="text-red-700">${e.amount} ৳</strong>
-              </div>
-            `;
-          });
-        }
       }
 
-      function downloadPDF() {
+      async function downloadPDF() {
         const element = document.getElementById("statementDocument");
         const btn = document.getElementById("btnDownloadPdf");
         
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> PDF হচ্ছে...`;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> PDF তৈরি হচ্ছে...`;
+
+        // Wait for all web fonts to completely load
+        if (document.fonts) {
+          await document.fonts.ready;
+        }
 
         const opt = {
-          margin: [8, 8, 8, 8],
+          margin: [6, 6, 6, 6],
           filename: `mess-statement-${targetMonth}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+          image: { type: "jpeg", quality: 1.0 },
+          html2canvas: { 
+            scale: 2.5, 
+            useCORS: true, 
+            logging: false,
+            scrollY: 0,
+          },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         };
 
@@ -364,7 +374,7 @@
           })
           .catch((err) => {
             console.error(err);
-            alert("PDF ডাউনলোডে সমস্যা হলে 'প্রিন্ট করুন' বাটন থেকে 'Save as PDF' সিলেক্ট করুন।");
+            alert("PDF ডাউনলোডে সমস্যা হলে 'প্রিন্ট করুন' বাটন থেকে 'Save as PDF' নির্বাচন করুন।");
             btn.disabled = false;
             btn.innerHTML = `<i class="fas fa-file-pdf"></i> PDF ডাউনলোড করুন`;
           });
