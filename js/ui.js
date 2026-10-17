@@ -2,6 +2,14 @@
 // UI Interactions, Tab Switching and Dropdowns
 
 function switchTab(tabId) {
+  // Members are only allowed to access Dashboard and My Details
+  if (currentUser && currentUser.role !== "admin") {
+    const allowedTabs = ["dashboard", "my-details"];
+    if (!allowedTabs.includes(tabId)) {
+      tabId = "dashboard";
+    }
+  }
+
   const tabs = [
     "dashboard",
     "members",
@@ -48,6 +56,9 @@ function switchTab(tabId) {
     renderMemberDetails("mydetails", currentUser.memberId);
     if (typeof initMyProfileHeader === "function") {
       initMyProfileHeader();
+    }
+    if (typeof initMyMealForm === "function") {
+      initMyMealForm();
     }
   }
 }

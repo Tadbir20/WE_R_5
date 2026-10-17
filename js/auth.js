@@ -129,7 +129,7 @@ function applyRolePermissions() {
     adminElements.forEach((el) => el.classList.add("hidden"));
     adminSections.forEach((el) => el.classList.add("hidden"));
     memberElements.forEach((el) => el.classList.remove("hidden"));
-    switchTab("my-details");
+    switchTab("dashboard");
 
     if (typeof initMyMealForm === "function") {
       initMyMealForm();
