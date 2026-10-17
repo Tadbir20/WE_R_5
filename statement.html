@@ -112,16 +112,13 @@
       <!-- Content State -->
       <div id="statementContent" class="hidden">
         
-        <!-- Header (Bilingual English & Bengali) -->
+        <!-- Header -->
         <div class="text-center border-b-2 border-gray-900 pb-4 mb-6">
           <h1 class="text-2xl md:text-3xl font-black tracking-tight text-gray-900">
-            মেস ম্যানেজার — মাসিক হিসাব বিবরণী
+            Mess Manager — Monthly Accounts
           </h1>
-          <p class="text-xs md:text-sm font-semibold tracking-wide text-gray-500 uppercase mt-0.5">
-            MESS MANAGER — MONTHLY FINANCIAL STATEMENT
-          </p>
-          <p class="text-sm font-bold text-indigo-900 mt-2" id="sheetMonthHeader">
-            Month / মাস: -
+          <p class="text-base md:text-lg font-bold text-gray-700 mt-1" id="sheetMonthHeader">
+            -
           </p>
         </div>
 
@@ -223,6 +220,22 @@
       const urlParams = new URLSearchParams(window.location.search);
       const targetMonth = urlParams.get("month") || "";
       let backupRawData = null;
+      function formatMonthYear(monthStr) {
+        if (!monthStr) return "";
+        const parts = monthStr.split("-");
+        if (parts.length === 2) {
+          const year = parts[0];
+          const monthNum = parseInt(parts[1], 10);
+          const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+          ];
+          if (monthNum >= 1 && monthNum <= 12) {
+            return `${monthNames[monthNum - 1]} ${year}`;
+          }
+        }
+        return monthStr;
+      }
 
       async function initStatement() {
         if (!targetMonth) {
@@ -230,7 +243,7 @@
           return;
         }
 
-        document.getElementById("topMonthBadge").innerText = `মাস: ${targetMonth}`;
+        document.getElementById("topMonthBadge").innerText = `মাস: ${formatMonthYear(targetMonth)}`;
 
         const savedAdd = localStorage.getItem("additionalCost_" + targetMonth);
         if (savedAdd !== null) {
@@ -278,8 +291,8 @@
         const perMealRate = totalMeals > 0 ? totalCost / totalMeals : 0;
         const grandTotalCost = Math.round((totalCost + totalAdditional) * 100) / 100;
 
-        // Fill top-left summary block
-        document.getElementById("sheetMonthHeader").innerText = `Month / মাস: ${backupRawData.month}`;
+        // Fill header and top-left summary block
+        document.getElementById("sheetMonthHeader").innerText = formatMonthYear(backupRawData.month);
         document.getElementById("lblTotalDeposit").innerText = totalDeposit;
         document.getElementById("lblTotalCost").innerText = totalAdditional > 0 ? `${grandTotalCost} (${totalCost} + ${totalAdditional})` : totalCost;
         document.getElementById("lblTotalMeals").innerText = totalMeals;
