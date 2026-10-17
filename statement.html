@@ -238,6 +238,13 @@
       }
 
       async function initStatement() {
+        const savedUser = JSON.parse(localStorage.getItem("mess_user") || "null");
+        if (!savedUser || savedUser.role !== "admin") {
+          alert("এই পেজটি শুধুমাত্র মেস অ্যাডমিনের জন্য সংরক্ষিত!");
+          window.location.href = "/";
+          return;
+        }
+
         if (!targetMonth) {
           alert("কোনো মাস উল্লেখ করা হয়নি!");
           return;

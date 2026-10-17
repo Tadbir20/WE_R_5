@@ -159,7 +159,7 @@
           <button
             onclick="switchTab('dashboard')"
             id="nav-dashboard"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-800 text-white transition"
+            class="admin-only w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-800 text-white transition"
           >
             <i class="fas fa-chart-pie"></i> ড্যাশবোর্ড
           </button>
@@ -241,7 +241,7 @@
 
         <main class="p-6">
           <!-- 1. Dashboard Tab -->
-          <section id="tab-dashboard" class="space-y-6">
+          <section id="tab-dashboard" class="space-y-6 admin-only-section">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 class="text-2xl font-bold text-gray-800">
@@ -1128,7 +1128,7 @@
                   আমার হিসাব ও বিস্তারিত (My Accounts)
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">
-                  মাস নির্বাচন করে আপনার ব্যক্তিগত জমা, মিল ও ব্যালেন্স দেখুন এবং PDF বিবরণী ডাউনলোড করুন।
+                  মাস নির্বাচন করে আপনার ব্যক্তিগত জমা, মিল ও খরচের হিসাব দেখুন।
                 </p>
               </div>
               <div class="flex items-center gap-2">
@@ -1141,23 +1141,6 @@
                     onchange="renderMemberDetails('mydetails')"
                   />
                 </div>
-                <button
-                  type="button"
-                  id="btnDownloadMyDetailsPdf"
-                  onclick="downloadMemberStatementPDF('mydetails')"
-                  class="bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow"
-                  title="আমার এই মাসের সম্পূর্ণ পরিচিতি ও হিসাব বিবরণী PDF ডাউনলোড করুন"
-                >
-                  <i class="fas fa-file-pdf"></i> আমার PDF স্টেটমেন্ট
-                </button>
-                <button
-                  type="button"
-                  onclick="printMemberStatement('mydetails')"
-                  class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow"
-                  title="প্রিন্ট করুন"
-                >
-                  <i class="fas fa-print"></i>
-                </button>
               </div>
             </div>
 
@@ -1302,6 +1285,174 @@
                       class="divide-y text-sm text-gray-700"
                     ></tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Member Personal Information & Documents Submission Section -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+              <div class="border-b pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-id-card text-indigo-600"></i> ব্যক্তিগত তথ্য ও ডকুমেন্টস সাবমিশন (Personal Documents)
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    আপনার এনআইডি নম্বর, অভিভাবকের যোগাযোগ নম্বর, ঠিকানা ও প্রয়োজনীয় ডকুমেন্টস সাবমিট করুন। এগুলো মেস ডাটাবেজে নিরাপদে সংরক্ষিত থাকবে।
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 font-bold self-start sm:self-auto">
+                  <i class="fas fa-shield-alt text-green-600"></i> ডাটাবেজে সুরক্ষিত
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Personal Information Form -->
+                <div class="lg:col-span-5 bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-4">
+                  <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-user-edit text-indigo-600"></i> ব্যক্তিগত তথ্য আপডেট করুন
+                  </h4>
+                  <form id="myPersonalDetailsForm" onsubmit="saveMyPersonalDetails(event)" class="space-y-3.5">
+                    <div>
+                      <label class="block text-xs font-bold text-gray-700 mb-1">
+                        এনআইডি / স্টুডেন্ট আইডি নং:
+                      </label>
+                      <input
+                        type="text"
+                        id="myNidInput"
+                        placeholder="যেমন: 1998567890..."
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-gray-700 mb-1">
+                        জরুরি যোগাযোগ / অভিভাবকের মোবাইল:
+                      </label>
+                      <input
+                        type="tel"
+                        id="myEmergencyInput"
+                        placeholder="জরুরি কল করার নম্বর..."
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-gray-700 mb-1">
+                        স্থায়ী ঠিকানা (Permanent Address):
+                      </label>
+                      <textarea
+                        id="myAddressInput"
+                        rows="2"
+                        placeholder="গ্রাম/রোড, পোস্ট, থানা, জেলা..."
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs"
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      id="btnSaveMyPersonalDetails"
+                      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition shadow flex items-center justify-center gap-2"
+                    >
+                      <i class="fas fa-save"></i> তথ্য ডাটাবেজে সংরক্ষণ করুন
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Right: Document Uploads & Gallery -->
+                <div class="lg:col-span-7 space-y-5">
+                  <!-- NID / ID Card Upload Box -->
+                  <div class="bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                      <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-id-badge text-indigo-600"></i> এনআইডি / স্টুডেন্ট আইডি কার্ডের ছবি
+                      </h4>
+                      <span id="myNidStatusBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                        সংরক্ষিত নেই
+                      </span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                      <!-- NID Image Preview -->
+                      <div id="myNidPreviewContainer" class="w-full sm:w-44 h-28 rounded-xl border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-400 text-xs overflow-hidden flex-shrink-0">
+                        <i class="fas fa-id-card text-2xl mb-1 text-gray-300"></i>
+                        <span>কোনো ছবি নেই</span>
+                      </div>
+
+                      <div class="flex-1 space-y-2 w-full">
+                        <p class="text-xs text-gray-500 leading-relaxed">
+                          আপনার জাতীয় পরিচয়পত্র (NID) বা স্টুডেন্ট আইডির স্পষ্ট ছবি বা স্ক্যান কপি আপলোড করুন।
+                        </p>
+                        <div class="flex items-center gap-2">
+                          <input
+                            type="file"
+                            id="myNidFileInput"
+                            accept="image/*,.pdf"
+                            class="hidden"
+                            onchange="uploadMyNidFile()"
+                          />
+                          <label
+                            for="myNidFileInput"
+                            id="btnUploadMyNid"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-2 shadow-xs"
+                          >
+                            <i class="fas fa-upload"></i> আইডি কার্ড আপলোড করুন
+                          </label>
+                        </div>
+                        <p id="myNidUploadStatus" class="text-xs text-indigo-600 font-medium hidden">
+                          <i class="fas fa-spinner fa-spin mr-1"></i> আপলোড হচ্ছে...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Other Necessary Documents Submission Box -->
+                  <div class="bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-4">
+                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <i class="fas fa-file-alt text-indigo-600"></i> অন্যান্য প্রয়োজনীয় ডকুমেন্টস সাবমিট করুন
+                    </h4>
+                    
+                    <!-- Upload Input Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end bg-white p-3.5 rounded-xl border border-gray-200">
+                      <div class="sm:col-span-5">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">ডকুমেন্টের নাম / টাইটেল:</label>
+                        <input
+                          type="text"
+                          id="myDocTitleInput"
+                          placeholder="যেমন: নাগরিক সনদ, চুক্তিপত্র..."
+                          class="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-indigo-500"
+                        />
+                      </div>
+                      <div class="sm:col-span-4">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">ফাইল সিলেক্ট করুন:</label>
+                        <input
+                          type="file"
+                          id="myDocFileInput"
+                          accept="image/*,.pdf"
+                          class="w-full text-xs text-gray-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                        />
+                      </div>
+                      <div class="sm:col-span-3">
+                        <button
+                          type="button"
+                          id="btnSubmitMyDoc"
+                          onclick="uploadMyAdditionalDocument()"
+                          class="w-full bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 shadow"
+                        >
+                          <i class="fas fa-cloud-upload-alt"></i> সাবমিট
+                        </button>
+                      </div>
+                    </div>
+                    <p id="myDocUploadStatus" class="text-xs text-indigo-600 font-medium hidden">
+                      <i class="fas fa-spinner fa-spin mr-1"></i> ডকুমেন্ট আপলোড হচ্ছে...
+                    </p>
+
+                    <!-- Submitted Documents Gallery / List -->
+                    <div>
+                      <h5 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1.5">
+                        <i class="fas fa-folder text-indigo-500"></i> ডাটাবেজে সংরক্ষিত ডকুমেন্টসমূহ:
+                      </h5>
+                      <div id="mySubmittedDocsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Populated dynamically -->
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

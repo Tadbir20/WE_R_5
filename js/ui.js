@@ -43,8 +43,12 @@ function switchTab(tabId) {
     renderMemberFilesList();
   }
   if (tabId === "my-details" && currentUser && currentUser.role === "member") {
-    document.getElementById("detailsMemberSelect").value = currentUser.memberId;
+    const detailsSelect = document.getElementById("detailsMemberSelect");
+    if (detailsSelect) detailsSelect.value = currentUser.memberId;
     renderMemberDetails("mydetails", currentUser.memberId);
+    if (typeof initMyProfileHeader === "function") {
+      initMyProfileHeader();
+    }
   }
 }
 

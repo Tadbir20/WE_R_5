@@ -669,9 +669,12 @@ async function prepareMemberPdfData(prefix = "md") {
 }
 
 async function downloadMemberStatementPDF(prefix = "md") {
-  const btn = prefix === "md"
-    ? document.getElementById("btnDownloadMemberPdf")
-    : document.getElementById("btnDownloadMyDetailsPdf");
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("শুধুমাত্র অ্যাডমিন স্টেটমেন্ট PDF ডাউনলোড করতে পারবেন!");
+    return;
+  }
+
+  const btn = document.getElementById("btnDownloadMemberPdf");
   const originalHtml = btn ? btn.innerHTML : "";
 
   try {
@@ -718,6 +721,11 @@ async function downloadMemberStatementPDF(prefix = "md") {
 }
 
 async function printMemberStatement(prefix = "md") {
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("শুধুমাত্র অ্যাডমিন স্টেটমেন্ট প্রিন্ট করতে পারবেন!");
+    return;
+  }
+
   const data = await prepareMemberPdfData(prefix);
   if (!data) return;
 
