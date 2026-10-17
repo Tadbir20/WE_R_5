@@ -1128,18 +1128,14 @@
                   আমার হিসাব ও বিস্তারিত (My Accounts)
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">
-                  মাস নির্বাচন করে আপনার ব্যক্তিগত জমা, মিল ও খরচের হিসাব দেখুন।
+                  চলতি মাসের আপনার ব্যক্তিগত জমা, মিল ও খরচের হিসাব বিবরণী।
                 </p>
               </div>
               <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1.5 bg-white border border-gray-300 rounded-xl px-2.5 py-1.5 shadow-xs">
-                  <label for="mydetailsMonthSelect" class="text-xs font-bold text-gray-600 whitespace-nowrap">মাস:</label>
-                  <input
-                    type="month"
-                    id="mydetailsMonthSelect"
-                    class="bg-transparent text-xs font-bold text-indigo-900 focus:outline-none cursor-pointer"
-                    onchange="renderMemberDetails('mydetails')"
-                  />
+                <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-900 rounded-xl px-3.5 py-1.5 shadow-xs font-semibold text-xs">
+                  <i class="far fa-calendar-alt text-indigo-600"></i>
+                  <span>চলতি মাস:</span>
+                  <span id="myCurrentMonthBadge" class="text-indigo-700 font-extrabold">-</span>
                 </div>
               </div>
             </div>

@@ -125,12 +125,23 @@ function renderMemberDetails(prefix = "md", forcedMemberId = null) {
 
   contentDiv.classList.remove("hidden");
 
-  // Get selected month (Default to current YYYY-MM if empty)
-  const monthInput = document.getElementById(prefix + "MonthSelect");
-  if (monthInput && !monthInput.value) {
-    monthInput.value = new Date().toISOString().slice(0, 7);
+  // Get selected month
+  let selectedMonth = "";
+  if (prefix === "mydetails") {
+    // User member can ONLY view current month details
+    selectedMonth = new Date().toISOString().slice(0, 7);
+    const badgeEl = document.getElementById("myCurrentMonthBadge");
+    if (badgeEl) {
+      badgeEl.innerText = typeof formatYearMonth === "function" ? formatYearMonth(selectedMonth) : selectedMonth;
+    }
+  } else {
+    // Admin can select any month
+    const monthInput = document.getElementById(prefix + "MonthSelect");
+    if (monthInput && !monthInput.value) {
+      monthInput.value = new Date().toISOString().slice(0, 7);
+    }
+    selectedMonth = monthInput ? monthInput.value : "";
   }
-  const selectedMonth = monthInput ? monthInput.value : "";
 
   // Find member profile details
   const member = members.find((m) => m.id === memberId);
@@ -561,13 +572,14 @@ async function saveNewMemberMeal(prefix = "md") {
 // =========================================================================
 
 async function prepareMemberPdfData(prefix = "md") {
-  let memberId = null;
-  if (prefix === "md") {
-    const select = document.getElementById("detailsMemberSelect");
-    if (select) memberId = select.value;
-  } else if (currentUser && currentUser.memberId) {
-    memberId = currentUser.memberId;
+  if (prefix !== "md" || !currentUser || currentUser.role !== "admin") {
+    alert("সদস্যদের জন্য ব্যক্তিগত PDF স্টেটমেন্ট ডাউনলোড প্রযোজ্য নয়। শুধুমাত্র অ্যাডমিন স্টেটমেন্ট ডাউনলোড করতে পারবেন।");
+    return null;
   }
+
+  let memberId = null;
+  const select = document.getElementById("detailsMemberSelect");
+  if (select) memberId = select.value;
 
   if (!memberId) {
     alert("কোনো সদস্য নির্বাচিত করা হয়নি!");
@@ -580,7 +592,7 @@ async function prepareMemberPdfData(prefix = "md") {
     return null;
   }
 
-  const monthInput = document.getElementById(prefix + "MonthSelect");
+  const monthInput = document.getElementById("mdMonthSelect");
   const targetMonth = monthInput && monthInput.value ? monthInput.value : new Date().toISOString().slice(0, 7);
 
   // Month calculations
