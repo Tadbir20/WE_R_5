@@ -157,7 +157,6 @@ http://localhost:3000
 | `POST` | `/api/meals` | দৈনিক মিল সংরক্ষণ / আপডেট |
 | `GET` | `/api/backups` | বিগত ৩ মাসের ব্যাকআপের তালিকা |
 | `GET` | `/api/backups/data/:month` | নির্দিষ্ট মাসের ফ্রেশ ব্যাকআপ ডাটা সংগ্রহ |
-| `GET` | `/api/backups/download/:month` | নির্দিষ্ট মাসের JSON ব্যাকআপ ডাউনলোড |
 | `POST` | `/api/backups/create` | তাৎক্ষণিক নতুন ব্যাকআপ তৈরি |
 
 ---

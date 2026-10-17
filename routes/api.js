@@ -300,18 +300,6 @@ router.post("/backups/create", async (req, res) => {
   }
 });
 
-router.get("/backups/download/:month", (req, res) => {
-  try {
-    const filePath = backupService.getBackupFilePath(req.params.month);
-    if (!filePath) {
-      return res.status(404).json({ error: "Backup file not found for this month" });
-    }
-    res.download(filePath, `mess-backup-${req.params.month}.json`);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.get("/backups/data/:month", async (req, res) => {
   try {
     // Generate fresh backup to ensure 100% sync with live database
