@@ -70,9 +70,9 @@ function renderMealInputs() {
     const existingMeal = meals.find(
       (meal) => meal.memberId === m.id && meal.date === date,
     );
-    const sokal = existingMeal ? existingMeal.sokal || 0 : 0;
-    const rat = existingMeal ? existingMeal.rat || 0 : 0;
-    const total = (parseFloat(sokal) || 0) + (parseFloat(rat) || 0);
+    const sokal = existingMeal ? parseInt(existingMeal.sokal, 10) || 0 : 0;
+    const rat = existingMeal ? parseInt(existingMeal.rat, 10) || 0 : 0;
+    const total = sokal + rat;
 
     tbody.innerHTML += `
       <tr class="border-b hover:bg-gray-50 transition" id="meal-row-${m.id}">
@@ -86,7 +86,7 @@ function renderMealInputs() {
           <input
             type="number"
             min="0"
-            step="0.5"
+            step="1"
             value="${sokal}"
             data-member-id="${m.id}"
             class="meal-input-sokal border rounded-lg px-2 py-1.5 w-20 text-center font-bold text-gray-800 focus:outline-indigo-500 shadow-sm"
@@ -97,7 +97,7 @@ function renderMealInputs() {
           <input
             type="number"
             min="0"
-            step="0.5"
+            step="1"
             value="${rat}"
             data-member-id="${m.id}"
             class="meal-input-rat border rounded-lg px-2 py-1.5 w-20 text-center font-bold text-gray-800 focus:outline-indigo-500 shadow-sm"
@@ -119,9 +119,9 @@ function updateRowMealTotal(memberId) {
   const totalCell = document.getElementById(`total-meal-${memberId}`);
 
   if (sokalInput && ratInput && totalCell) {
-    const sokal = parseFloat(sokalInput.value) || 0;
-    const rat = parseFloat(ratInput.value) || 0;
-    totalCell.innerText = Math.round((sokal + rat) * 10) / 10;
+    const sokal = parseInt(sokalInput.value, 10) || 0;
+    const rat = parseInt(ratInput.value, 10) || 0;
+    totalCell.innerText = sokal + rat;
   }
 }
 
@@ -156,8 +156,8 @@ async function saveMeals() {
     const ratInput = document.querySelector(`.meal-input-rat[data-member-id="${m.id}"]`);
 
     if (sokalInput && ratInput) {
-      const sokal = parseFloat(sokalInput.value) || 0;
-      const rat = parseFloat(ratInput.value) || 0;
+      const sokal = parseInt(sokalInput.value, 10) || 0;
+      const rat = parseInt(ratInput.value, 10) || 0;
       const count = sokal + rat;
 
       newMeals.push({
@@ -214,8 +214,8 @@ if (myMealForm) {
     }
 
     const date = document.getElementById("myMealDate").value;
-    const sokal = parseFloat(document.getElementById("myMealSokal").value) || 0;
-    const rat = parseFloat(document.getElementById("myMealRat").value) || 0;
+    const sokal = parseInt(document.getElementById("myMealSokal").value, 10) || 0;
+    const rat = parseInt(document.getElementById("myMealRat").value, 10) || 0;
     const count = sokal + rat;
     const memberId = currentUser.memberId;
 

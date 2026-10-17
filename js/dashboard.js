@@ -279,7 +279,7 @@ function renderMemberDetails(prefix = "md", forcedMemberId = null) {
                 <input
                   type="number"
                   min="0"
-                  step="0.5"
+                  step="1"
                   value="${sokal}"
                   class="md-meal-input-sokal border border-gray-300 rounded-lg px-2 py-1 w-16 text-center font-bold text-gray-800 focus:outline-indigo-500 shadow-sm"
                   data-meal-id="${mealId}"
@@ -292,7 +292,7 @@ function renderMemberDetails(prefix = "md", forcedMemberId = null) {
                 <input
                   type="number"
                   min="0"
-                  step="0.5"
+                  step="1"
                   value="${rat}"
                   class="md-meal-input-rat border border-gray-300 rounded-lg px-2 py-1 w-16 text-center font-bold text-gray-800 focus:outline-indigo-500 shadow-sm"
                   data-meal-id="${mealId}"
@@ -350,9 +350,9 @@ function updateMemberDetailRowTotal(mealId) {
   const ratInput = document.getElementById(`md-rat-${mealId}`);
   const totalCell = document.getElementById(`md-total-${mealId}`);
   if (sokalInput && ratInput && totalCell) {
-    const s = parseFloat(sokalInput.value) || 0;
-    const r = parseFloat(ratInput.value) || 0;
-    totalCell.innerText = Math.round((s + r) * 10) / 10;
+    const s = parseInt(sokalInput.value, 10) || 0;
+    const r = parseInt(ratInput.value, 10) || 0;
+    totalCell.innerText = s + r;
   }
 }
 
@@ -362,8 +362,8 @@ async function saveSingleMemberDetailMeal(memberId, mealId, date) {
   const btn = document.getElementById(`btn-save-meal-${mealId}`);
 
   if (!sokalInput || !ratInput) return;
-  const sokal = parseFloat(sokalInput.value) || 0;
-  const rat = parseFloat(ratInput.value) || 0;
+  const sokal = parseInt(sokalInput.value, 10) || 0;
+  const rat = parseInt(ratInput.value, 10) || 0;
   const count = sokal + rat;
 
   const originalBtnHtml = btn ? btn.innerHTML : "";
@@ -459,8 +459,8 @@ async function saveAllMemberDetailMeals() {
     const rInput = document.querySelector(`.md-meal-input-rat[data-meal-id="${mealId}"]`);
 
     if (date && rInput) {
-      const sokal = parseFloat(sInput.value) || 0;
-      const rat = parseFloat(rInput.value) || 0;
+      const sokal = parseInt(sInput.value, 10) || 0;
+      const rat = parseInt(rInput.value, 10) || 0;
       newMeals.push({
         memberId,
         date,
@@ -536,8 +536,8 @@ async function saveNewMemberMeal(prefix = "md") {
   }
 
   const date = dateInput.value;
-  const sokal = parseFloat(sokalInput ? sokalInput.value : 0) || 0;
-  const rat = parseFloat(ratInput ? ratInput.value : 0) || 0;
+  const sokal = parseInt(sokalInput ? sokalInput.value : 0, 10) || 0;
+  const rat = parseInt(ratInput ? ratInput.value : 0, 10) || 0;
   const count = sokal + rat;
 
   try {

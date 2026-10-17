@@ -390,8 +390,8 @@ router.post("/meals", async (req, res) => {
 
     for (const m of mealsArray) {
       if (!m.memberId || !m.date) continue;
-      const sokal = parseFloat(m.sokal) || 0;
-      const rat = parseFloat(m.rat) || 0;
+      const sokal = Math.round(Number(m.sokal)) || 0;
+      const rat = Math.round(Number(m.rat)) || 0;
       const count = sokal + rat;
 
       await Meal.findOneAndUpdate(
