@@ -1701,7 +1701,7 @@
         <p id="lightboxTitle" class="text-white text-sm font-bold mt-3 text-center bg-black/50 px-4 py-1.5 rounded-full"></p>
     <!-- Hidden Dedicated Printable Container for Individual Member PDF Statement -->
     <div id="individualMemberPdfContainer" class="hidden">
-      <div id="individualMemberPdfSheet" class="bg-white p-8 max-w-[800px] mx-auto text-gray-900 font-sans" style="font-family: 'Noto Sans Bengali', Arial, sans-serif;">
+      <div id="individualMemberPdfSheet" class="bg-white p-8 max-w-[800px] mx-auto text-gray-900 font-sans" style="font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;">
         <!-- Header -->
         <div style="border-bottom: 2px solid #111827; padding-bottom: 12px; margin-bottom: 16px; text-align: center;">
           <h1 id="pdfSheetTitle" style="font-size: 22px; font-weight: 900; margin: 0; color: #111827; letter-spacing: 0.5px;">
@@ -1717,26 +1717,26 @@
           <table style="width: 100%; font-size: 11px; line-height: 1.6; border-collapse: collapse;">
             <tr>
               <td style="width: 50%; vertical-align: top; padding: 2px 8px;">
-                <strong>সদস্যের নাম:</strong> <span id="pdfSheetMemberName" style="font-size: 13px; font-weight: 800; color: #111827;">-</span>
+                <strong>Member Name:</strong> <span id="pdfSheetMemberName" style="font-size: 13px; font-weight: 800; color: #111827;">-</span>
               </td>
               <td style="width: 50%; vertical-align: top; padding: 2px 8px;">
-                <strong>পিতার নাম:</strong> <span id="pdfSheetFatherName">-</span>
+                <strong>Father's Name:</strong> <span id="pdfSheetFatherName">-</span>
               </td>
             </tr>
             <tr>
               <td style="padding: 2px 8px;">
-                <strong>মোবাইল নম্বর:</strong> <span id="pdfSheetPhone" style="font-family: monospace; font-weight: 700;">-</span>
+                <strong>Phone Number:</strong> <span id="pdfSheetPhone" style="font-family: monospace; font-weight: 700;">-</span>
               </td>
               <td style="padding: 2px 8px;">
-                <strong>পিতা/অভিভাবকের নম্বর:</strong> <span id="pdfSheetEmergency" style="font-family: monospace;">-</span>
+                <strong>Father / Guardian Phone:</strong> <span id="pdfSheetEmergency" style="font-family: monospace;">-</span>
               </td>
             </tr>
             <tr>
               <td style="padding: 2px 8px;">
-                <strong>রুম নম্বর:</strong> <span id="pdfSheetRoom" style="font-weight: 700;">-</span>
+                <strong>Room No:</strong> <span id="pdfSheetRoom" style="font-weight: 700;">-</span>
               </td>
               <td style="padding: 2px 8px;">
-                <strong>বর্তমান ঠিকানা:</strong> <span id="pdfSheetAddress">-</span>
+                <strong>Present Address:</strong> <span id="pdfSheetAddress">-</span>
               </td>
             </tr>
           </table>
@@ -1745,19 +1745,19 @@
         <!-- Monthly Financial Summary Cards (Ledger Block) -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; text-align: center;">
           <div style="border: 1.5px solid #111827; border-radius: 8px; padding: 8px; background-color: #f9fafb;">
-            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">মোট জমা (Deposit)</div>
+            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">Total Deposit</div>
             <div id="pdfSheetTotalDeposit" style="font-size: 14px; font-weight: 900; color: #15803d; margin-top: 2px;">৳ 0</div>
           </div>
           <div style="border: 1.5px solid #111827; border-radius: 8px; padding: 8px; background-color: #f9fafb;">
-            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">মোট মিল (Meals)</div>
+            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">Total Meals</div>
             <div id="pdfSheetTotalMeals" style="font-size: 14px; font-weight: 900; color: #111827; margin-top: 2px;">0</div>
           </div>
           <div style="border: 1.5px solid #111827; border-radius: 8px; padding: 8px; background-color: #f9fafb;">
-            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">মিল খরচ (রেট: ৳ <span id="pdfSheetMealRate">0</span>)</div>
+            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">Meal Cost (Rate: ৳ <span id="pdfSheetMealRate">0</span>)</div>
             <div id="pdfSheetMealCost" style="font-size: 14px; font-weight: 900; color: #dc2626; margin-top: 2px;">৳ 0</div>
           </div>
           <div style="border: 1.5px solid #111827; border-radius: 8px; padding: 8px; background-color: #f9fafb;">
-            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">অবস্থা (ব্যালেন্স)</div>
+            <div style="font-size: 10px; font-weight: 700; color: #4b5563;">Balance / Status</div>
             <div id="pdfSheetBalance" style="font-size: 14px; font-weight: 900; color: #1d4ed8; margin-top: 2px;">৳ 0</div>
           </div>
         </div>
@@ -1768,19 +1768,19 @@
             <!-- Left: Deposits (40% width) -->
             <td style="width: 40%; vertical-align: top; padding-right: 10px;">
               <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 1.5px solid #111827; padding-bottom: 4px; margin: 0 0 6px 0;">
-                জমার তালিকা (Deposits)
+                Deposits History
               </h4>
               <table style="width: 100%; font-size: 10px; border-collapse: collapse; border: 1px solid #111827;">
                 <thead style="background-color: #e5e7eb;">
                   <tr>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: left;">তারিখ</th>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: right;">পরিমাণ (৳)</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: left;">Date</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: right;">Amount (৳)</th>
                   </tr>
                 </thead>
                 <tbody id="pdfSheetDepositRows"></tbody>
                 <tfoot style="background-color: #f3f4f6; font-weight: bold;">
                   <tr>
-                    <td style="border: 1px solid #111827; padding: 4px 6px;">মোট জমা:</td>
+                    <td style="border: 1px solid #111827; padding: 4px 6px;">Total Deposit:</td>
                     <td id="pdfSheetFootDeposit" style="border: 1px solid #111827; padding: 4px 6px; text-align: right; color: #15803d;">৳ 0</td>
                   </tr>
                 </tfoot>
@@ -1790,21 +1790,21 @@
             <!-- Right: Meals (60% width) -->
             <td style="width: 60%; vertical-align: top; padding-left: 10px;">
               <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 1.5px solid #111827; padding-bottom: 4px; margin: 0 0 6px 0;">
-                দৈনিক মিলের বিবরণী (Daily Meals)
+                Daily Meals History
               </h4>
               <table style="width: 100%; font-size: 10px; border-collapse: collapse; border: 1px solid #111827;">
                 <thead style="background-color: #e5e7eb;">
                   <tr>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: left;">তারিখ</th>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">সকাল</th>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">রাত</th>
-                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">মোট</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: left;">Date</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">Day (Lunch)</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">Night (Dinner)</th>
+                    <th style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">Total</th>
                   </tr>
                 </thead>
                 <tbody id="pdfSheetMealRows"></tbody>
                 <tfoot style="background-color: #f3f4f6; font-weight: bold;">
                   <tr>
-                    <td colspan="3" style="border: 1px solid #111827; padding: 4px 6px;">সর্বমোট মিল:</td>
+                    <td colspan="3" style="border: 1px solid #111827; padding: 4px 6px;">Total Meals:</td>
                     <td id="pdfSheetFootMeals" style="border: 1px solid #111827; padding: 4px 6px; text-align: center;">0</td>
                   </tr>
                 </tfoot>
@@ -1817,15 +1817,15 @@
         <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px;">
           <div style="text-align: center;">
             <div style="width: 140px; border-bottom: 1px solid #111827; margin-bottom: 4px;"></div>
-            <strong>সদস্যের স্বাক্ষর</strong>
+            <strong>Member Signature</strong>
           </div>
           <div style="text-align: center; font-size: 9px; color: #6b7280;">
             <span id="pdfSheetGeneratedDate">-</span><br/>
-            মেস ম্যানেজমেন্ট সিস্টেম (Mess Manager)
+            Mess Management System
           </div>
           <div style="text-align: center;">
             <div style="width: 140px; border-bottom: 1px solid #111827; margin-bottom: 4px;"></div>
-            <strong>মেস ম্যানেজারের স্বাক্ষর</strong>
+            <strong>Manager Signature</strong>
           </div>
         </div>
       </div>

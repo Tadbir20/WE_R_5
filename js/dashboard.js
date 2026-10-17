@@ -634,34 +634,54 @@ async function prepareMemberPdfData(prefix = "md") {
   }
   document.getElementById("pdfSheetPhone").innerText = member.phone || "-";
   document.getElementById("pdfSheetRoom").innerText = member.room || "-";
-  document.getElementById("pdfSheetEmergency").innerText = member.fatherPhone || member.emergencyContact || "প্রযোজ্য নয়";
+  document.getElementById("pdfSheetEmergency").innerText = member.fatherPhone || member.emergencyContact || "N/A";
   if (document.getElementById("pdfSheetNid")) {
-    document.getElementById("pdfSheetNid").innerText = member.nid || "সংযুক্ত নেই";
+    document.getElementById("pdfSheetNid").innerText = member.nid || "Not Provided";
   }
-  document.getElementById("pdfSheetAddress").innerText = member.presentAddress || member.address || "দেওয়া হয়নি";
-  const formattedMonth = typeof formatYearMonth === "function" ? formatYearMonth(targetMonth) : targetMonth;
-  document.getElementById("pdfSheetMonthLabel").innerText = `হিসাবের মাস: ${formattedMonth}`;
+  document.getElementById("pdfSheetAddress").innerText = member.presentAddress || member.address || "Not Provided";
 
-  document.getElementById("pdfSheetTotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
+  const getEnglishMonth = (monthStr) => {
+    if (!monthStr) return "";
+    const parts = monthStr.split("-");
+    if (parts.length === 2) {
+      const year = parts[0];
+      const monthNum = parseInt(parts[1], 10);
+      const monthNamesEn = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      if (monthNum >= 1 && monthNum <= 12) {
+        return `${monthNamesEn[monthNum - 1]} ${year}`;
+      }
+    }
+    return monthStr;
+  };
+  const englishMonth = getEnglishMonth(targetMonth);
+  document.getElementById("pdfSheetMonthLabel").innerText = englishMonth;
+
+  document.getElementById("pdfSheetTotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-US")}`;
   document.getElementById("pdfSheetTotalMeals").innerText = mMealsSum;
   document.getElementById("pdfSheetMealRate").innerText = mealRate.toFixed(2);
   document.getElementById("pdfSheetMealCost").innerText = `৳ ${mMealCost.toFixed(2)}`;
-  document.getElementById("pdfSheetBalance").innerText = `৳ ${balance.toFixed(2)} ${balance >= 0 ? "(পাওনা)" : "(বাকি)"}`;
-  document.getElementById("pdfSheetFootDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
+  document.getElementById("pdfSheetBalance").innerText = `৳ ${balance.toFixed(2)} ${balance >= 0 ? "(Refundable)" : "(Due)"}`;
+  document.getElementById("pdfSheetFootDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-US")}`;
   document.getElementById("pdfSheetFootMeals").innerText = mMealsSum;
-  document.getElementById("pdfSheetGeneratedDate").innerText = `প্রিন্ট তারিখ: ${new Date().toLocaleDateString("bn-BD")} ${new Date().toLocaleTimeString("bn-BD")}`;
+
+  const now = new Date();
+  const printDateStr = now.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) + " " + now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("pdfSheetGeneratedDate").innerText = `Printed: ${printDateStr}`;
 
   // Populate deposit rows
   const depTbody = document.getElementById("pdfSheetDepositRows");
   depTbody.innerHTML = "";
   if (mDeposits.length === 0) {
-    depTbody.innerHTML = `<tr><td colspan="2" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">এই মাসে কোনো জমা নেই</td></tr>`;
+    depTbody.innerHTML = `<tr><td colspan="2" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">No deposit records found for this month</td></tr>`;
   } else {
     mDeposits.forEach((d) => {
       depTbody.innerHTML += `
         <tr>
           <td style="border: 1px solid #111827; padding: 4px 6px;">${d.date}</td>
-          <td style="border: 1px solid #111827; padding: 4px 6px; text-align: right; font-weight: bold; color: #15803d;">৳ ${Number(d.amount).toLocaleString("en-IN")}</td>
+          <td style="border: 1px solid #111827; padding: 4px 6px; text-align: right; font-weight: bold; color: #15803d;">৳ ${Number(d.amount).toLocaleString("en-US")}</td>
         </tr>
       `;
     });
@@ -671,7 +691,7 @@ async function prepareMemberPdfData(prefix = "md") {
   const mealTbody = document.getElementById("pdfSheetMealRows");
   mealTbody.innerHTML = "";
   if (mMeals.length === 0) {
-    mealTbody.innerHTML = `<tr><td colspan="4" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">এই মাসে কোনো মিলের রেকর্ড নেই</td></tr>`;
+    mealTbody.innerHTML = `<tr><td colspan="4" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">No meal records found for this month</td></tr>`;
   } else {
     mMeals.forEach((meal) => {
       const sokal = meal.sokal !== undefined ? meal.sokal : 0;
