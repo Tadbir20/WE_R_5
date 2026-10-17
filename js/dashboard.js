@@ -107,8 +107,12 @@ function updateDashboard() {
 function renderMemberDetails(prefix = "md", forcedMemberId = null) {
   let memberId = forcedMemberId;
   if (!memberId) {
-    const select = document.getElementById("detailsMemberSelect");
-    if (select) memberId = select.value;
+    if (prefix === "md") {
+      const select = document.getElementById("detailsMemberSelect");
+      if (select) memberId = select.value;
+    } else if (currentUser && currentUser.memberId) {
+      memberId = currentUser.memberId;
+    }
   }
 
   const contentDiv = document.getElementById(prefix + "memberDetailsContent");
@@ -121,26 +125,82 @@ function renderMemberDetails(prefix = "md", forcedMemberId = null) {
 
   contentDiv.classList.remove("hidden");
 
-  let totalBazar = expenses.reduce((sum, ex) => sum + ex.amount, 0);
-  let totalMeals = meals.reduce((sum, m) => sum + m.count, 0);
-  let mealRate = totalMeals > 0 ? totalBazar / totalMeals : 0;
+  // Get selected month (Default to current YYYY-MM if empty)
+  const monthInput = document.getElementById(prefix + "MonthSelect");
+  if (monthInput && !monthInput.value) {
+    monthInput.value = new Date().toISOString().slice(0, 7);
+  }
+  const selectedMonth = monthInput ? monthInput.value : "";
 
-  const mDeposits = deposits.filter((d) => d.memberId === memberId);
-  const mDepositSum = mDeposits.reduce((s, d) => s + d.amount, 0);
+  // Find member profile details
+  const member = members.find((m) => m.id === memberId);
+  if (member && prefix === "md") {
+    const photoEl = document.getElementById("mdProfilePhoto");
+    const nameEl = document.getElementById("mdProfileName");
+    const phoneEl = document.getElementById("mdProfilePhone");
+    const roomEl = document.getElementById("mdProfileRoom");
+    const emEl = document.getElementById("mdProfileEmergency");
+    const nidEl = document.getElementById("mdProfileNid");
+    const addrEl = document.getElementById("mdProfileAddress");
+    const badgeEl = document.getElementById("mdProfileActiveBadge");
 
-  const mMeals = meals.filter((meal) => meal.memberId === memberId);
+    if (photoEl) {
+      photoEl.src = member.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=4338ca&color=fff&bold=true`;
+    }
+    if (nameEl) nameEl.innerText = member.name;
+    if (phoneEl) phoneEl.innerText = member.phone;
+    if (roomEl) roomEl.innerText = member.room || "-";
+    if (emEl) emEl.innerText = member.emergencyContact || "প্রযোজ্য নয়";
+    if (nidEl) nidEl.innerText = member.nid || "সংযুক্ত নেই";
+    if (addrEl) addrEl.innerText = member.address || "দেওয়া হয়নি";
+
+    if (badgeEl) {
+      const isActive = Array.isArray(member.activeMonths) && member.activeMonths.includes(selectedMonth);
+      badgeEl.innerHTML = `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+          isActive
+            ? "bg-green-500/20 text-green-300 border border-green-400/40"
+            : "bg-gray-700 text-gray-300 border border-gray-600"
+        }">
+          <i class="fas ${isActive ? "fa-check-circle text-green-400" : "fa-times-circle text-gray-400"} text-xs"></i>
+          ${selectedMonth ? selectedMonth + " মাসে " + (isActive ? "সক্রিয়" : "নিষ্ক্রিয়") : "সকল রেকর্ড"}
+        </span>
+      `;
+    }
+  }
+
+  // Filter mess records by selected month for accurate monthly meal rate
+  const monthExpenses = expenses.filter(
+    (ex) => !selectedMonth || (ex.date && ex.date.startsWith(selectedMonth))
+  );
+  const monthMeals = meals.filter(
+    (m) => !selectedMonth || (m.date && m.date.startsWith(selectedMonth))
+  );
+
+  const totalMonthBazar = monthExpenses.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+  const totalMonthMeals = monthMeals.reduce((sum, m) => sum + (Number(m.count) || 0), 0);
+  const mealRate = totalMonthMeals > 0 ? totalMonthBazar / totalMonthMeals : 0;
+
+  // Filter member's deposits and meals by selected month
+  const mDeposits = deposits.filter(
+    (d) => d.memberId === memberId && (!selectedMonth || (d.date && d.date.startsWith(selectedMonth)))
+  );
+  const mDepositSum = mDeposits.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+
+  const mMeals = meals.filter(
+    (meal) => meal.memberId === memberId && (!selectedMonth || (meal.date && meal.date.startsWith(selectedMonth)))
+  );
   const mMealsSum = mMeals.reduce((s, meal) => s + (Number(meal.count) || 0), 0);
   const mMealCost = mMealsSum * mealRate;
 
   const balance = mDepositSum - mMealCost;
 
-  document.getElementById(prefix + "TotalDeposit").innerText =
-    `৳ ${mDepositSum}`;
+  document.getElementById(prefix + "TotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
   document.getElementById(prefix + "TotalMeals").innerText = mMealsSum;
-  document.getElementById(prefix + "MealCost").innerText =
-    `৳ ${mMealCost.toFixed(2)}`;
-  document.getElementById(prefix + "Balance").innerText =
-    `৳ ${balance.toFixed(2)} ${balance >= 0 ? "(পাওনা)" : "(বাকি)"}`;
+  document.getElementById(prefix + "MealCost").innerText = `৳ ${mMealCost.toFixed(2)}`;
+  document.getElementById(prefix + "Balance").innerText = `৳ ${balance.toFixed(2)} ${
+    balance >= 0 ? "(পাওনা)" : "(বাকি)"
+  }`;
 
   if (balance >= 0) {
     document
@@ -494,4 +554,195 @@ async function saveNewMemberMeal(prefix = "md") {
     console.error("Add new meal error:", err);
     alert("সার্ভার এরর: নতুন মিল যোগ করা সম্ভব হয়নি!");
   }
+}
+
+// =========================================================================
+// Individual Member Statement PDF Generation & Printing
+// =========================================================================
+
+async function prepareMemberPdfData(prefix = "md") {
+  let memberId = null;
+  if (prefix === "md") {
+    const select = document.getElementById("detailsMemberSelect");
+    if (select) memberId = select.value;
+  } else if (currentUser && currentUser.memberId) {
+    memberId = currentUser.memberId;
+  }
+
+  if (!memberId) {
+    alert("কোনো সদস্য নির্বাচিত করা হয়নি!");
+    return null;
+  }
+
+  const member = members.find((m) => m.id === memberId);
+  if (!member) {
+    alert("সদস্যের তথ্য পাওয়া যায়নি!");
+    return null;
+  }
+
+  const monthInput = document.getElementById(prefix + "MonthSelect");
+  const targetMonth = monthInput && monthInput.value ? monthInput.value : new Date().toISOString().slice(0, 7);
+
+  // Month calculations
+  const monthExpenses = expenses.filter(
+    (ex) => !targetMonth || (ex.date && ex.date.startsWith(targetMonth))
+  );
+  const monthMeals = meals.filter(
+    (m) => !targetMonth || (m.date && m.date.startsWith(targetMonth))
+  );
+
+  const totalMonthBazar = monthExpenses.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+  const totalMonthMeals = monthMeals.reduce((sum, m) => sum + (Number(m.count) || 0), 0);
+  const mealRate = totalMonthMeals > 0 ? totalMonthBazar / totalMonthMeals : 0;
+
+  // Member's month deposits and meals
+  const mDeposits = deposits.filter(
+    (d) => d.memberId === memberId && (!targetMonth || (d.date && d.date.startsWith(targetMonth)))
+  );
+  mDeposits.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const mDepositSum = mDeposits.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+
+  const mMeals = meals.filter(
+    (meal) => meal.memberId === memberId && (!targetMonth || (meal.date && meal.date.startsWith(targetMonth)))
+  );
+  mMeals.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const mMealsSum = mMeals.reduce((s, meal) => s + (Number(meal.count) || 0), 0);
+  const mMealCost = mMealsSum * mealRate;
+  const balance = mDepositSum - mMealCost;
+
+  // Populate PDF Template Elements
+  document.getElementById("pdfSheetMemberName").innerText = member.name;
+  document.getElementById("pdfSheetPhone").innerText = member.phone || "-";
+  document.getElementById("pdfSheetRoom").innerText = member.room || "-";
+  document.getElementById("pdfSheetEmergency").innerText = member.emergencyContact || "প্রযোজ্য নয়";
+  document.getElementById("pdfSheetNid").innerText = member.nid || "সংযুক্ত নেই";
+  document.getElementById("pdfSheetAddress").innerText = member.address || "দেওয়া হয়নি";
+  document.getElementById("pdfSheetMonthLabel").innerText = `হিসাবের মাস: ${typeof formatYearMonth === "function" ? formatYearMonth(targetMonth) : targetMonth}`;
+
+  document.getElementById("pdfSheetTotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
+  document.getElementById("pdfSheetTotalMeals").innerText = mMealsSum;
+  document.getElementById("pdfSheetMealRate").innerText = mealRate.toFixed(2);
+  document.getElementById("pdfSheetMealCost").innerText = `৳ ${mMealCost.toFixed(2)}`;
+  document.getElementById("pdfSheetBalance").innerText = `৳ ${balance.toFixed(2)} ${balance >= 0 ? "(পাওনা)" : "(বাকি)"}`;
+  document.getElementById("pdfSheetFootDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
+  document.getElementById("pdfSheetFootMeals").innerText = mMealsSum;
+  document.getElementById("pdfSheetGeneratedDate").innerText = `প্রিন্ট তারিখ: ${new Date().toLocaleDateString("bn-BD")} ${new Date().toLocaleTimeString("bn-BD")}`;
+
+  // Populate deposit rows
+  const depTbody = document.getElementById("pdfSheetDepositRows");
+  depTbody.innerHTML = "";
+  if (mDeposits.length === 0) {
+    depTbody.innerHTML = `<tr><td colspan="2" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">এই মাসে কোনো জমা নেই</td></tr>`;
+  } else {
+    mDeposits.forEach((d) => {
+      depTbody.innerHTML += `
+        <tr>
+          <td style="border: 1px solid #111827; padding: 4px 6px;">${d.date}</td>
+          <td style="border: 1px solid #111827; padding: 4px 6px; text-align: right; font-weight: bold; color: #15803d;">৳ ${Number(d.amount).toLocaleString("en-IN")}</td>
+        </tr>
+      `;
+    });
+  }
+
+  // Populate meal rows
+  const mealTbody = document.getElementById("pdfSheetMealRows");
+  mealTbody.innerHTML = "";
+  if (mMeals.length === 0) {
+    mealTbody.innerHTML = `<tr><td colspan="4" style="border: 1px solid #111827; padding: 6px; text-align: center; color: #6b7280;">এই মাসে কোনো মিলের রেকর্ড নেই</td></tr>`;
+  } else {
+    mMeals.forEach((meal) => {
+      const sokal = meal.sokal !== undefined ? meal.sokal : 0;
+      const rat = meal.rat !== undefined ? meal.rat : 0;
+      const count = meal.count !== undefined ? meal.count : sokal + rat;
+      mealTbody.innerHTML += `
+        <tr>
+          <td style="border: 1px solid #111827; padding: 3px 6px;">${meal.date}</td>
+          <td style="border: 1px solid #111827; padding: 3px 6px; text-align: center;">${sokal}</td>
+          <td style="border: 1px solid #111827; padding: 3px 6px; text-align: center;">${rat}</td>
+          <td style="border: 1px solid #111827; padding: 3px 6px; text-align: center; font-weight: bold;">${count}</td>
+        </tr>
+      `;
+    });
+  }
+
+  return { member, targetMonth };
+}
+
+async function downloadMemberStatementPDF(prefix = "md") {
+  const btn = prefix === "md"
+    ? document.getElementById("btnDownloadMemberPdf")
+    : document.getElementById("btnDownloadMyDetailsPdf");
+  const originalHtml = btn ? btn.innerHTML : "";
+
+  try {
+    const data = await prepareMemberPdfData(prefix);
+    if (!data) return;
+
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> PDF তৈরি হচ্ছে...`;
+    }
+
+    const container = document.getElementById("individualMemberPdfContainer");
+    const sheet = document.getElementById("individualMemberPdfSheet");
+    if (!container || !sheet) throw new Error("PDF টেমপ্লেট পাওয়া যায়নি!");
+
+    container.classList.remove("hidden");
+
+    // Wait for fonts to finish rendering
+    if (document.fonts) {
+      await document.fonts.ready;
+    }
+
+    const safeName = (data.member.name || "Member").replace(/[^a-zA-Z0-9_\u0980-\u09FF]/g, "_");
+    const opt = {
+      margin: [6, 6, 6, 6],
+      filename: `member-statement-${safeName}-${data.targetMonth}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+
+    await html2pdf().set(opt).from(sheet).save();
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    alert("PDF তৈরিতে সমস্যা হয়েছে! প্রিন্ট অপশন ব্যবহার করে 'Save as PDF' করতে পারেন।");
+  } finally {
+    const container = document.getElementById("individualMemberPdfContainer");
+    if (container) container.classList.add("hidden");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
+
+async function printMemberStatement(prefix = "md") {
+  const data = await prepareMemberPdfData(prefix);
+  if (!data) return;
+
+  const sheet = document.getElementById("individualMemberPdfSheet");
+  if (!sheet) return;
+
+  const printWindow = window.open("", "_blank");
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>সদস্য স্টেটমেন্ট - ${data.member.name}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet" />
+        <style>
+          body { font-family: 'Noto Sans Bengali', Arial, sans-serif; margin: 0; padding: 15px; color: #111827; }
+          @page { size: A4 portrait; margin: 8mm; }
+        </style>
+      </head>
+      <body>
+        ${sheet.innerHTML}
+        <script>
+          window.onload = function() { window.print(); window.close(); }
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
 }
