@@ -8,7 +8,9 @@ let expenses = [];
 let isMemberAccountsVisible = true;
 let currentUser = JSON.parse(localStorage.getItem("mess_user")) || null;
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = window.location.origin.startsWith("http")
+  ? `${window.location.origin}/api`
+  : "http://localhost:3000/api";
 
 // Fetch all data from MongoDB
 async function loadData() {
@@ -43,7 +45,9 @@ async function loadData() {
   }
 }
 
-// Set current date in inputs
-document.getElementById("depositDate").valueAsDate = new Date();
-document.getElementById("expenseDate").valueAsDate = new Date();
-document.getElementById("mealEntryDate").valueAsDate = new Date();
+// Set current date in inputs safely
+const today = new Date();
+["depositDate", "expenseDate", "mealEntryDate"].forEach((id) => {
+  const el = document.getElementById(id);
+  if (el) el.valueAsDate = today;
+});
