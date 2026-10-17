@@ -26,6 +26,10 @@ function switchTab(tabId) {
   if (activeNav) activeNav.classList.add("bg-indigo-800");
 
   if (tabId === "dashboard") updateDashboard();
+  if (tabId === "members") {
+    renderMembers();
+    if (typeof loadMonthlyActiveMembersUI === "function") loadMonthlyActiveMembersUI();
+  }
   if (tabId === "member-details") renderMemberDetails("md");
   if (tabId === "backups") renderBackups();
   if (tabId === "meals" && typeof refreshAndRenderMeals === "function") {

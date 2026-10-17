@@ -64,37 +64,48 @@ document
     const pin = document.getElementById("regPin").value;
 
     try {
-      // 1. Create the member
+      // 1. Create or re-activate the member
+      const activeMonth = new Date().toISOString().slice(0, 7);
       const res = await fetch(`${API_BASE}/members`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, room, pin }),
+        body: JSON.stringify({ name, phone, room, pin, activeMonth }),
       });
 
       if (!res.ok) {
-        alert("রেজিস্ট্রেশন ব্যর্থ হয়েছে!");
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || "রেজিস্ট্রেশন ব্যর্থ হয়েছে!");
         return;
       }
 
-      const newMember = await res.json();
-      members.push({ ...newMember, id: newMember._id });
+      const memberResult = await res.json();
+      await loadData();
       renderMembers();
       updateDropdowns();
 
       // 2. Log them in
       currentUser = {
         role: "member",
-        memberId: newMember._id,
-        name: newMember.name,
+        memberId: memberResult._id || memberResult.id,
+        name: memberResult.name,
+        phone: memberResult.phone,
+        room: memberResult.room,
+        photo: memberResult.photo || "",
+        activeMonths: memberResult.activeMonths || [activeMonth],
       };
       localStorage.setItem("mess_user", JSON.stringify(currentUser));
 
-      alert("সফলভাবে রেজিস্ট্রেশন হয়েছে!");
+      if (memberResult.isExistingMember) {
+        alert(memberResult.message || `স্বাগতম ${memberResult.name}! আপনি পূর্বেই রেজিস্টার্ড ছিলেন। চলতি মাসের (${activeMonth}) জন্য আপনার একাউন্ট সফলভাবে সক্রিয় করা হয়েছে!`);
+      } else {
+        alert("সফলভাবে রেজিস্ট্রেশন সম্পন্ন হয়েছে!");
+      }
+
       this.reset();
       checkAuth();
     } catch (err) {
       console.error(err);
-      alert("এরর হয়েছে!");
+      alert("সার্ভার এরর হয়েছে!");
     }
   });
 

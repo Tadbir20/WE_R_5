@@ -1,44 +1,106 @@
 // js/dashboard.js
 // Dashboard Calculation Engine and Member Details
 
+let selectedDashboardMonth = new Date().toISOString().slice(0, 7);
+
+function initDashboardMonth() {
+  const monthInput = document.getElementById("dashboardMonthSelect");
+  if (monthInput && !monthInput.value) {
+    monthInput.value = selectedDashboardMonth;
+  }
+}
+
+function onDashboardMonthChange() {
+  const monthInput = document.getElementById("dashboardMonthSelect");
+  if (monthInput && monthInput.value) {
+    selectedDashboardMonth = monthInput.value;
+  }
+  updateDashboard();
+}
+
 function updateDashboard() {
-  let totalDeposit = deposits.reduce((sum, d) => sum + d.amount, 0);
+  initDashboardMonth();
+  const monthInput = document.getElementById("dashboardMonthSelect");
+  const currentMonth = monthInput && monthInput.value ? monthInput.value : selectedDashboardMonth;
+
+  // Update Statement Link
+  const stmtLink = document.getElementById("btnDashboardStatementLink");
+  if (stmtLink) {
+    stmtLink.href = `statement.html?month=${currentMonth}`;
+  }
+
+  // Filter records by selected month
+  const monthDeposits = deposits.filter((d) => d.date && d.date.startsWith(currentMonth));
+  const monthExpenses = expenses.filter((ex) => ex.date && ex.date.startsWith(currentMonth));
+  const monthMeals = meals.filter((m) => m.date && m.date.startsWith(currentMonth));
+
+  let totalDeposit = monthDeposits.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
   document.getElementById("totalDeposit").innerText = `৳ ${totalDeposit}`;
 
-  let totalBazar = expenses.reduce((sum, ex) => sum + ex.amount, 0);
+  let totalBazar = monthExpenses.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
   document.getElementById("totalBazarCost").innerText = `৳ ${totalBazar}`;
 
-  let totalMeals = meals.reduce((sum, m) => sum + m.count, 0);
+  let totalMeals = monthMeals.reduce((sum, m) => sum + (Number(m.count) || 0), 0);
   document.getElementById("totalMealsCount").innerText = totalMeals;
 
   let mealRate = totalMeals > 0 ? totalBazar / totalMeals : 0;
-  document.getElementById("currentMealRate").innerText =
-    `৳ ${mealRate.toFixed(2)}`;
+  document.getElementById("currentMealRate").innerText = `৳ ${mealRate.toFixed(2)}`;
 
   const summaryTbody = document.getElementById("summaryTableBody");
+  if (!summaryTbody) return;
   summaryTbody.innerHTML = "";
 
-  members.forEach((m) => {
-    const mDeposit = deposits
+  // Filter active members for this month (or members with activity in this month)
+  const activeMembers = members.filter((m) => {
+    const activeList = Array.isArray(m.activeMonths) ? m.activeMonths : [];
+    const hasActivity =
+      monthMeals.some((meal) => meal.memberId === m.id && Number(meal.count) > 0) ||
+      monthDeposits.some((d) => d.memberId === m.id && Number(d.amount) > 0);
+    return activeList.includes(currentMonth) || hasActivity;
+  });
+
+  if (activeMembers.length === 0) {
+    summaryTbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-6 text-center text-gray-500">
+          <div class="space-y-1">
+            <p class="font-bold text-gray-700">মাস ${currentMonth}-এর জন্য কোনো সক্রিয় সদস্য পাওয়া যায়নি!</p>
+            <p class="text-xs text-gray-400">'সদস্য ব্যবস্থাপনা' মেনু থেকে এই মাসের জন্য সক্রিয় সদস্য নির্বাচন করুন।</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  activeMembers.forEach((m) => {
+    const mDeposit = monthDeposits
       .filter((d) => d.memberId === m.id)
-      .reduce((s, d) => s + d.amount, 0);
-    const mMeals = meals
+      .reduce((s, d) => s + (Number(d.amount) || 0), 0);
+    const mMeals = monthMeals
       .filter((meal) => meal.memberId === m.id)
-      .reduce((s, meal) => s + meal.count, 0);
+      .reduce((s, meal) => s + (Number(meal.count) || 0), 0);
     const mMealCost = mMeals * mealRate;
     const balance = mDeposit - mMealCost;
 
     summaryTbody.innerHTML += `
-            <tr class="border-b">
-                <td class="p-3 font-medium">${m.name}</td>
-                <td class="p-3 text-green-600 font-semibold">৳ ${mDeposit}</td>
-                <td class="p-3">${mMeals}</td>
-                <td class="p-3">৳ ${mMealCost.toFixed(2)}</td>
-                <td class="p-3 font-bold ${balance >= 0 ? "text-blue-600" : "text-red-600"}">
-                    ৳ ${balance.toFixed(2)} ${balance >= 0 ? "(পাওনা)" : "(বাকি)"}
-                </td>
-            </tr>
-        `;
+      <tr class="border-b hover:bg-gray-50 transition">
+        <td class="p-3 font-semibold text-gray-900 flex items-center gap-2">
+          ${
+            m.photo
+              ? `<img src="${m.photo}" class="w-6 h-6 rounded-full object-cover border" />`
+              : `<div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">${(m.name || "M").charAt(0)}</div>`
+          }
+          <span>${m.name}</span>
+        </td>
+        <td class="p-3 text-green-600 font-semibold font-mono">৳ ${mDeposit}</td>
+        <td class="p-3 font-bold">${mMeals}</td>
+        <td class="p-3 font-semibold font-mono text-gray-800">৳ ${mMealCost.toFixed(2)}</td>
+        <td class="p-3 font-bold font-mono ${balance >= 0 ? "text-blue-600" : "text-red-600"}">
+          ৳ ${balance.toFixed(2)} ${balance >= 0 ? "(পাওনা)" : "(বাকি)"}
+        </td>
+      </tr>
+    `;
   });
 }
 

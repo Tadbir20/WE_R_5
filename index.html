@@ -242,9 +242,36 @@
         <main class="p-6">
           <!-- 1. Dashboard Tab -->
           <section id="tab-dashboard" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800">
-              মাসের সারসংক্ষেপ (Dashboard)
-            </h2>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800">
+                  মাসের সারসংক্ষেপ (Dashboard)
+                </h2>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  নির্বাচিত মাসের জমা, খরচ, মিল রেট ও সক্রিয় সদস্যদের হিসাব
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <label for="dashboardMonthSelect" class="text-xs font-bold text-gray-600 whitespace-nowrap">
+                  মাস নির্বাচন:
+                </label>
+                <input
+                  type="month"
+                  id="dashboardMonthSelect"
+                  onchange="onDashboardMonthChange()"
+                  class="border border-indigo-300 rounded-xl px-3 py-1.5 text-sm font-bold text-indigo-900 bg-white focus:outline-indigo-500 shadow-sm"
+                />
+                <a
+                  id="btnDashboardStatementLink"
+                  href="statement.html"
+                  target="_blank"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow"
+                  title="এই মাসের স্টেটমেন্ট ও PDF ডাউনলোড দেখুন"
+                >
+                  <i class="fas fa-file-pdf"></i> স্টেটমেন্ট
+                </a>
+              </div>
+            </div>
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -389,15 +416,26 @@
               <div
                 class="bg-white p-6 rounded-xl shadow-sm md:col-span-2 overflow-x-auto"
               >
-                <h3 class="text-lg font-bold text-gray-800 mb-4">
-                  সকল সদস্যের তালিকা
-                </h3>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-800">
+                      সকল নিবন্ধিত সদস্যের তালিকা
+                    </h3>
+                    <p class="text-xs text-gray-500">
+                      সিস্টেমে পূর্বে বা বর্তমানে রেজিস্টার্ড সকল সদস্যের স্থায়ী রেকর্ড
+                    </p>
+                  </div>
+                  <span id="allMembersCountBadge" class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-full font-bold border border-indigo-200">
+                    মোট: 0 জন
+                  </span>
+                </div>
                 <table class="w-full text-left border-collapse">
                   <thead>
                     <tr class="bg-gray-50 border-b text-gray-600 text-sm">
                       <th class="p-3">নাম</th>
                       <th class="p-3">মোবাইল</th>
                       <th class="p-3">রুম</th>
+                      <th class="p-3">সক্রিয় মাসসমূহ</th>
                       <th class="p-3">অ্যাকশন</th>
                     </tr>
                   </thead>
@@ -406,6 +444,74 @@
                     class="divide-y text-sm text-gray-700"
                   ></tbody>
                 </table>
+              </div>
+            </div>
+
+            <!-- Monthly Active Member Selection Section -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 space-y-4">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-calendar-check text-indigo-600"></i>
+                    মাসিক সক্রিয় সদস্য নির্বাচন (Monthly Active Members)
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    প্রতিটি মাসে মেসের হিসাবে কোন কোন সদস্য অংশগ্রহণ করছেন তা এখান থেকে সিলেক্ট করুন।
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex items-center gap-1.5 bg-gray-50 border border-indigo-200 rounded-xl px-2.5 py-1">
+                    <label for="monthlyMemberPicker" class="text-xs font-bold text-gray-700 whitespace-nowrap">মাস:</label>
+                    <input
+                      type="month"
+                      id="monthlyMemberPicker"
+                      onchange="loadMonthlyActiveMembersUI()"
+                      class="bg-transparent text-sm font-bold text-indigo-900 focus:outline-none cursor-pointer"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onclick="selectAllMonthlyMembers(true)"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-xl transition"
+                    title="সকল সদস্যকে এই মাসে সক্রিয় করুন"
+                  >
+                    সবাইকে সিলেক্ট
+                  </button>
+                  <button
+                    type="button"
+                    onclick="selectAllMonthlyMembers(false)"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-xl transition"
+                    title="সকল সদস্যকে এই মাসে নিষ্ক্রিয় করুন"
+                  >
+                    বাদ দিন
+                  </button>
+                  <button
+                    type="button"
+                    id="btnSaveMonthlyActiveMembers"
+                    onclick="saveMonthlyActiveMembers()"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5"
+                  >
+                    <i class="fas fa-save"></i> পরিবর্তন সেভ করুন
+                  </button>
+                </div>
+              </div>
+
+              <!-- Active Stats Banner -->
+              <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-indigo-950">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-info-circle text-indigo-600 text-base"></i>
+                  <span>নির্বাচিত মাস: <strong id="lblActiveMonthName" class="text-indigo-900 text-sm font-bold">-</strong></span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span>এই মাসে সক্রিয়: <strong id="lblActiveMembersCount" class="text-green-700 text-sm font-black">0</strong> জন</span>
+                  <span class="text-gray-300">|</span>
+                  <span>মোট ডাটাবেজ সদস্য: <strong id="lblTotalRegisteredCount" class="text-gray-800 text-sm font-bold">0</strong> জন</span>
+                </div>
+              </div>
+
+              <!-- Member Toggle Grid -->
+              <div id="monthlyActiveMembersGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-1">
+                <!-- Dynamically rendered member cards with toggle buttons/checkboxes -->
               </div>
             </div>
           </section>

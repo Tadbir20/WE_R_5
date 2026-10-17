@@ -20,12 +20,13 @@ async function refreshAndRenderMeals() {
   }
 }
 
-// Render Admin Meal Table
+// Render Admin Meal Table (Filtered by Active Members of Date's Month)
 function renderMealInputs() {
   const dateInput = document.getElementById("mealEntryDate");
   if (!dateInput) return;
 
   const date = dateInput.value;
+  const targetMonth = date ? date.slice(0, 7) : "";
   const tbody = document.getElementById("mealInputTableBody");
   if (!tbody) return;
   tbody.innerHTML = "";
@@ -35,7 +36,37 @@ function renderMealInputs() {
     return;
   }
 
-  members.forEach((m) => {
+  // Filter members active in this date's month (or with existing meals on this date)
+  const activeMembersForDate = members.filter((m) => {
+    const activeList = Array.isArray(m.activeMonths) ? m.activeMonths : [];
+    const hasExistingRecord = meals.some(
+      (meal) =>
+        meal.memberId === m.id &&
+        meal.date === date &&
+        (Number(meal.count) > 0 || Number(meal.sokal) > 0 || Number(meal.rat) > 0)
+    );
+    return activeList.includes(targetMonth) || hasExistingRecord;
+  });
+
+  if (activeMembersForDate.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="p-6 text-center text-gray-500">
+          <div class="space-y-2">
+            <i class="fas fa-user-slash text-2xl text-gray-400"></i>
+            <p class="font-bold">মাস ${targetMonth}-এর জন্য কোনো সক্রিয় সদস্য নির্ধারিত নেই!</p>
+            <p class="text-xs text-gray-400">মেসের সদস্যরা প্রতি মাসে পরিবর্তিত হতে পারেন।</p>
+            <button onclick="switchTab('members')" class="inline-block mt-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm">
+              <i class="fas fa-users-cog mr-1"></i> সদস্য ব্যবস্থাপনা থেকে সক্রিয় সদস্য বাছুন
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  activeMembersForDate.forEach((m) => {
     const existingMeal = meals.find(
       (meal) => meal.memberId === m.id && meal.date === date,
     );
@@ -99,6 +130,7 @@ async function saveMeals() {
   const dateInput = document.getElementById("mealEntryDate");
   if (!dateInput) return;
   const date = dateInput.value;
+  const targetMonth = date ? date.slice(0, 7) : "";
 
   const saveBtn = document.getElementById("adminSaveMealsBtn");
   if (saveBtn) {
@@ -108,7 +140,18 @@ async function saveMeals() {
 
   let newMeals = [];
 
-  members.forEach((m) => {
+  const activeMembersForDate = members.filter((m) => {
+    const activeList = Array.isArray(m.activeMonths) ? m.activeMonths : [];
+    const hasExistingRecord = meals.some(
+      (meal) =>
+        meal.memberId === m.id &&
+        meal.date === date &&
+        (Number(meal.count) > 0 || Number(meal.sokal) > 0 || Number(meal.rat) > 0)
+    );
+    return activeList.includes(targetMonth) || hasExistingRecord;
+  });
+
+  activeMembersForDate.forEach((m) => {
     const sokalInput = document.querySelector(`.meal-input-sokal[data-member-id="${m.id}"]`);
     const ratInput = document.querySelector(`.meal-input-rat[data-member-id="${m.id}"]`);
 

@@ -41,6 +41,76 @@ router.get("/members", async (req, res) => {
   }
 });
 
+// Get members with active status for a specific month (YYYY-MM)
+router.get("/members/month/:month", async (req, res) => {
+  try {
+    const month = req.params.month;
+    const allMembers = await Member.find().lean();
+    const mapped = allMembers.map((m) => {
+      const activeList = Array.isArray(m.activeMonths) ? m.activeMonths : [];
+      return {
+        ...m,
+        id: m._id.toString(),
+        isActive: activeList.includes(month),
+      };
+    });
+    res.json({
+      month,
+      totalCount: mapped.length,
+      activeCount: mapped.filter((m) => m.isActive).length,
+      members: mapped,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Set active members for a specific month (Admin Only)
+router.post("/members/month/:month/set-active", async (req, res) => {
+  try {
+    const month = req.params.month;
+    const { activeMemberIds, memberId, isActive } = req.body;
+
+    // Single member toggle
+    if (memberId && typeof isActive === "boolean") {
+      const member = await Member.findById(memberId);
+      if (!member) return res.status(404).json({ error: "সদস্য পাওয়া যায়নি" });
+      if (!Array.isArray(member.activeMonths)) member.activeMonths = [];
+
+      if (isActive) {
+        if (!member.activeMonths.includes(month)) {
+          member.activeMonths.push(month);
+        }
+      } else {
+        member.activeMonths = member.activeMonths.filter((m) => m !== month);
+      }
+      await member.save();
+      return res.json({ success: true, member, month });
+    }
+
+    // Bulk update for all members in the month
+    if (Array.isArray(activeMemberIds)) {
+      const allMembers = await Member.find();
+      for (const m of allMembers) {
+        if (!Array.isArray(m.activeMonths)) m.activeMonths = [];
+        const isSelected = activeMemberIds.includes(m._id.toString());
+        if (isSelected && !m.activeMonths.includes(month)) {
+          m.activeMonths.push(month);
+          await m.save();
+        } else if (!isSelected && m.activeMonths.includes(month)) {
+          m.activeMonths = m.activeMonths.filter((item) => item !== month);
+          await m.save();
+        }
+      }
+      return res.json({ success: true, month, activeMemberIds });
+    }
+
+    res.status(400).json({ error: "Invalid payload" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/members/:id", async (req, res) => {
   try {
     const member = await Member.findById(req.params.id);
@@ -51,9 +121,41 @@ router.get("/members/:id", async (req, res) => {
   }
 });
 
+// Register or Add Member (Handles new members and re-joining old members)
 router.post("/members", async (req, res) => {
   try {
-    const newMember = new Member(req.body);
+    const { name, phone, room, pin, activeMonth } = req.body;
+    const currentMonth = activeMonth || new Date().toISOString().slice(0, 7);
+
+    // Check if phone already registered (Existing member re-registering)
+    const existingMember = await Member.findOne({ phone: phone ? phone.trim() : "" });
+    if (existingMember) {
+      if (!Array.isArray(existingMember.activeMonths)) existingMember.activeMonths = [];
+      if (!existingMember.activeMonths.includes(currentMonth)) {
+        existingMember.activeMonths.push(currentMonth);
+      }
+      if (room) existingMember.room = room;
+      if (name) existingMember.name = name;
+      if (pin) existingMember.pin = pin;
+      await existingMember.save();
+
+      return res.json({
+        ...existingMember.toObject(),
+        isExistingMember: true,
+        message: `স্বাগতম! আপনি ইতিপূর্বে রেজিস্টার্ড সদস্য (${existingMember.name})। আপনার একাউন্ট ${currentMonth} মাসের জন্য সক্রিয় করা হয়েছে।`,
+      });
+    }
+
+    // New member registration
+    const memberData = {
+      ...req.body,
+      phone: phone ? phone.trim() : "",
+      activeMonths:
+        Array.isArray(req.body.activeMonths) && req.body.activeMonths.length > 0
+          ? req.body.activeMonths
+          : [currentMonth],
+    };
+    const newMember = new Member(memberData);
     await newMember.save();
     res.json(newMember);
   } catch (err) {
@@ -160,6 +262,7 @@ router.post("/login", async (req, res) => {
             phone: member.phone,
             room: member.room,
             photo: member.photo || "",
+            activeMonths: member.activeMonths || [],
           },
         });
       }

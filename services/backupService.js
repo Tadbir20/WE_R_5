@@ -27,7 +27,7 @@ function getLast3Months(baseDate = new Date()) {
 // Generate backup for a specific month
 async function generateMonthBackup(monthStr) {
   // Query all members
-  const members = await Member.find().lean();
+  const allMembers = await Member.find().lean();
   
   // Regex to match dates starting with YYYY-MM
   const monthRegex = new RegExp(`^${monthStr}`);
@@ -45,8 +45,18 @@ async function generateMonthBackup(monthStr) {
   const totalMeals = meals.reduce((sum, m) => sum + (Number(m.count) || 0), 0);
   const mealRate = totalMeals > 0 ? Number((totalExpenses / totalMeals).toFixed(2)) : 0;
 
-  // Member-wise breakdown
-  const memberSummaries = members.map((m) => {
+  // Filter only active members for this specific month (or members with activity in this month)
+  const activeMembers = allMembers.filter((m) => {
+    const inActiveMonths = Array.isArray(m.activeMonths) && m.activeMonths.includes(monthStr);
+    const mIdStr = m._id.toString();
+    const hasActivity =
+      meals.some((meal) => meal.memberId.toString() === mIdStr && Number(meal.count) > 0) ||
+      deposits.some((d) => d.memberId.toString() === mIdStr && Number(d.amount) > 0);
+    return inActiveMonths || hasActivity;
+  });
+
+  // Member-wise breakdown for active members of this month
+  const memberSummaries = activeMembers.map((m) => {
     const mIdStr = m._id.toString();
     const memDeposits = deposits.filter((d) => d.memberId.toString() === mIdStr);
     const memMeals = meals.filter((meal) => meal.memberId.toString() === mIdStr);
@@ -84,13 +94,15 @@ async function generateMonthBackup(monthStr) {
       totalExpenses,
       totalMeals,
       mealRate,
-      memberCount: members.length,
+      memberCount: activeMembers.length,
+      allRegisteredMembersCount: allMembers.length,
     },
     memberSummaries,
     deposits,
     expenses,
     meals,
-    members,
+    members: activeMembers,
+    allMembers,
   };
 
   const filePath = path.join(BACKUP_DIR, `backup-${monthStr}.json`);

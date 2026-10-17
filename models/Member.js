@@ -18,6 +18,10 @@ const memberSchema = new mongoose.Schema({
       uploadedAt: { type: Date, default: Date.now },
     },
   ],
+  activeMonths: {
+    type: [String],
+    default: [], // e.g. ["2026-10", "2026-11"]
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
