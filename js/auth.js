@@ -138,6 +138,10 @@ function applyRolePermissions() {
       initMyProfileHeader();
     }
   }
+
+  if (typeof renderMemberAccountsVisibilityUI === "function") {
+    renderMemberAccountsVisibilityUI();
+  }
 }
 
 // Populate member profile card in tab-my-details

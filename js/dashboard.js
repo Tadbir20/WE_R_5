@@ -20,6 +20,7 @@ function onDashboardMonthChange() {
 
 function updateDashboard() {
   initDashboardMonth();
+  renderMemberAccountsVisibilityUI();
   const monthInput = document.getElementById("dashboardMonthSelect");
   const currentMonth = monthInput && monthInput.value ? monthInput.value : selectedDashboardMonth;
 
@@ -766,3 +767,87 @@ async function printMemberStatement(prefix = "md") {
   `);
   printWindow.document.close();
 }
+
+// =========================================================================
+// Accounts of Members Visibility Management (Admin Toggle)
+// =========================================================================
+
+function renderMemberAccountsVisibilityUI() {
+  const card = document.getElementById("dashboardMemberAccountsCard");
+  const toggleBtn = document.getElementById("btnToggleMemberAccountsVisibility");
+  const thumb = document.getElementById("toggleMemberAccountsThumb");
+  const label = document.getElementById("memberAccountsVisibilityStatusLabel");
+  const notice = document.getElementById("adminAccountsHiddenNotice");
+
+  const isAdmin = currentUser && currentUser.role === "admin";
+
+  if (isAdmin) {
+    // Admin always sees the card
+    if (card) card.classList.remove("hidden");
+
+    // Update toggle switch state for Admin
+    if (toggleBtn && thumb && label) {
+      if (isMemberAccountsVisible) {
+        toggleBtn.classList.remove("bg-gray-300");
+        toggleBtn.classList.add("bg-green-600");
+        toggleBtn.setAttribute("aria-checked", "true");
+        thumb.classList.remove("translate-x-0");
+        thumb.classList.add("translate-x-5");
+        label.innerText = "চালু (ON)";
+        label.className = "text-xs font-black text-green-700 whitespace-nowrap";
+        if (notice) notice.classList.add("hidden");
+      } else {
+        toggleBtn.classList.remove("bg-green-600");
+        toggleBtn.classList.add("bg-gray-300");
+        toggleBtn.setAttribute("aria-checked", "false");
+        thumb.classList.remove("translate-x-5");
+        thumb.classList.add("translate-x-0");
+        label.innerText = "বন্ধ (OFF)";
+        label.className = "text-xs font-black text-gray-500 whitespace-nowrap";
+        if (notice) notice.classList.remove("hidden");
+      }
+    }
+  } else {
+    // Member view: Only show if admin turned it ON
+    if (card) {
+      if (isMemberAccountsVisible) {
+        card.classList.remove("hidden");
+      } else {
+        card.classList.add("hidden");
+      }
+    }
+  }
+}
+
+async function toggleMemberAccountsVisibility() {
+  if (!currentUser || currentUser.role !== "admin") {
+    alert("শুধুমাত্র অ্যাডমিন এই সেটিংস পরিবর্তন করতে পারবেন!");
+    return;
+  }
+
+  isMemberAccountsVisible = !isMemberAccountsVisible;
+  renderMemberAccountsVisibilityUI();
+
+  try {
+    const res = await fetch(`${API_BASE}/settings/memberAccountsVisibility`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: isMemberAccountsVisible }),
+    });
+
+    if (!res.ok) throw new Error("সেটিংস সেভ হতে ব্যর্থ হয়েছে");
+
+    if (isMemberAccountsVisible) {
+      alert("সদস্যদের হিসাবের বিবরণী (Accounts of members) এখন সকল মেম্বারদের জন্য চালু (দৃশ্যমান) করা হয়েছে।");
+    } else {
+      alert("সদস্যদের হিসাবের বিবরণী (Accounts of members) এখন মেম্বারদের জন্য বন্ধ (গোপন) করা হয়েছে।");
+    }
+  } catch (err) {
+    console.error("Save visibility setting error:", err);
+    // Revert state if failed
+    isMemberAccountsVisible = !isMemberAccountsVisible;
+    renderMemberAccountsVisibilityUI();
+    alert("সার্ভার এরর: সেটিংস আপডেট করা যায়নি!");
+  }
+}
+

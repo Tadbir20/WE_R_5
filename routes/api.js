@@ -8,6 +8,7 @@ const Member = require("../models/Member");
 const Deposit = require("../models/Deposit");
 const Expense = require("../models/Expense");
 const Meal = require("../models/Meal");
+const Setting = require("../models/Setting");
 const backupService = require("../services/backupService");
 
 // Configure Multer for Member File/Photo uploads
@@ -417,6 +418,33 @@ router.get("/backups/data/:month", async (req, res) => {
       return res.status(404).json({ error: "Backup data not found for this month" });
     }
     res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ----- Settings API -----
+router.get("/settings/:key", async (req, res) => {
+  try {
+    const setting = await Setting.findOne({ key: req.params.key });
+    res.json({
+      key: req.params.key,
+      value: setting ? setting.value : null,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/settings/:key", async (req, res) => {
+  try {
+    const { value } = req.body;
+    const setting = await Setting.findOneAndUpdate(
+      { key: req.params.key },
+      { value, updatedAt: new Date() },
+      { upsert: true, returnDocument: "after" }
+    );
+    res.json({ success: true, setting });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

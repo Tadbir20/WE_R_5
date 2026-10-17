@@ -318,13 +318,51 @@
               </div>
             </div>
 
-            <!-- Member Balance Summary Table -->
+            <!-- Member Balance Summary Table (Accounts of members) -->
             <div
+              id="dashboardMemberAccountsCard"
               class="bg-white rounded-xl shadow-sm p-6 overflow-x-auto"
             >
-              <h3 class="text-lg font-bold text-gray-800 mb-4">
-                সদস্যদের হিসাবের বিবরণী
-              </h3>
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-users-cog text-indigo-600"></i> Accounts of members (সদস্যদের হিসাবের বিবরণী)
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    মাসের সকল সক্রিয় সদস্যের জমা, মিল, খরচ এবং ব্যালেন্স
+                  </p>
+                </div>
+
+                <!-- Admin-Only Toggle: Member Visibility Switch -->
+                <div class="admin-only flex items-center gap-2.5 bg-indigo-50/70 border border-indigo-200 px-3.5 py-1.5 rounded-xl shadow-2xs">
+                  <span class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                    <i class="fas fa-eye text-indigo-600"></i> মেম্বারদের প্রদর্শন:
+                  </span>
+                  <button
+                    type="button"
+                    id="btnToggleMemberAccountsVisibility"
+                    onclick="toggleMemberAccountsVisibility()"
+                    class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-green-600"
+                    role="switch"
+                    aria-checked="true"
+                    title="মেম্বারদের জন্য এই টেবিল চালু বা বন্ধ করুন"
+                  >
+                    <span
+                      id="toggleMemberAccountsThumb"
+                      class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"
+                    ></span>
+                  </button>
+                  <span id="memberAccountsVisibilityStatusLabel" class="text-xs font-black text-green-700 whitespace-nowrap">
+                    চালু (ON)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Admin Indicator Notice when OFF for members -->
+              <div id="adminAccountsHiddenNotice" class="admin-only hidden mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2">
+                <i class="fas fa-eye-slash text-amber-600 text-base flex-shrink-0"></i>
+                <span><strong>বিজ্ঞপ্তি:</strong> এই 'Accounts of members' সেকশনটি বর্তমানে মেম্বারদের জন্য <strong>বন্ধ (OFF)</strong> করা আছে। সাধারণ সদস্যরা তাঁদের ড্যাশবোর্ডে এটি দেখতে পাচ্ছেন না। আপনি উপরের সুইচে ক্লিক করে যেকোনো সময় এটি পুনরায় চালু করতে পারেন।</span>
+              </div>
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-gray-50 border-b text-gray-600 text-sm">
