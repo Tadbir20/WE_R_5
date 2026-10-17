@@ -16,13 +16,49 @@ function checkAuth() {
 function showLogin() {
   document.getElementById("registerFormContainer").classList.add("hidden");
   document.getElementById("loginFormContainer").classList.remove("hidden");
+  const card = document.getElementById("authCard");
+  if (card) {
+    card.classList.remove("max-w-xl");
+    card.classList.add("max-w-md");
+  }
   document.getElementById("loginForm").reset();
 }
 
 function showRegister() {
   document.getElementById("loginFormContainer").classList.add("hidden");
   document.getElementById("registerFormContainer").classList.remove("hidden");
+  const card = document.getElementById("authCard");
+  if (card) {
+    card.classList.remove("max-w-md");
+    card.classList.add("max-w-xl");
+  }
   document.getElementById("registerFormAuth").reset();
+  const preview = document.getElementById("regNidPreviewWrapper");
+  if (preview) preview.classList.add("hidden");
+  const fileName = document.getElementById("regNidFileName");
+  if (fileName) fileName.innerText = "আইডি কার্ডের ছবি সিলেক্ট করুন (Choose Photo)";
+}
+
+function previewRegisterNid(input) {
+  const fileNameSpan = document.getElementById("regNidFileName");
+  const previewWrapper = document.getElementById("regNidPreviewWrapper");
+  const previewImg = document.getElementById("regNidPreviewImg");
+
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    if (fileNameSpan) fileNameSpan.innerText = file.name;
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        if (previewImg) previewImg.src = e.target.result;
+        if (previewWrapper) previewWrapper.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    } else {
+      if (previewWrapper) previewWrapper.classList.add("hidden");
+    }
+  }
 }
 
 document
@@ -58,18 +94,48 @@ document
   .getElementById("registerFormAuth")
   .addEventListener("submit", async function (e) {
     e.preventDefault();
-    const name = document.getElementById("regName").value;
-    const phone = document.getElementById("regPhone").value;
-    const room = document.getElementById("regRoom").value;
-    const pin = document.getElementById("regPin").value;
+    const name = document.getElementById("regName").value.trim();
+    const phone = document.getElementById("regPhone").value.trim();
+    const fatherName = document.getElementById("regFatherName").value.trim();
+    const fatherPhone = document.getElementById("regFatherPhone").value.trim();
+    const presentAddress = document.getElementById("regPresentAddress").value.trim();
+    const room = (document.getElementById("regRoom")?.value || "").trim() || "অনির্ধারিত";
+    const pin = document.getElementById("regPin").value.trim();
+    const nidFileInput = document.getElementById("regNidFile");
+
+    if (!nidFileInput || !nidFileInput.files || nidFileInput.files.length === 0) {
+      alert("দয়া করে আপনার এনআইডি বা স্টুডেন্ট আইডি কার্ডের ছবি আপলোড করুন!");
+      return;
+    }
+
+    const submitBtn = document.getElementById("btnRegisterSubmit");
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> রেজিস্টার সম্পন্ন হচ্ছে...`;
+    }
 
     try {
-      // 1. Create or re-activate the member
+      // 1. Create or re-activate the member with full personal details & NID photo
       const activeMonth = new Date().toISOString().slice(0, 7);
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("phone", phone);
+      formData.append("fatherName", fatherName);
+      formData.append("fatherPhone", fatherPhone);
+      formData.append("emergencyContact", fatherPhone);
+      formData.append("presentAddress", presentAddress);
+      formData.append("address", presentAddress);
+      formData.append("room", room);
+      formData.append("pin", pin);
+      formData.append("activeMonth", activeMonth);
+      if (nidFileInput.files[0]) {
+        formData.append("nidPicFile", nidFileInput.files[0]);
+      }
+
       const res = await fetch(`${API_BASE}/members`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, room, pin, activeMonth }),
+        body: formData,
       });
 
       if (!res.ok) {
@@ -90,15 +156,22 @@ document
         name: memberResult.name,
         phone: memberResult.phone,
         room: memberResult.room,
+        fatherName: memberResult.fatherName || "",
+        fatherPhone: memberResult.fatherPhone || "",
+        presentAddress: memberResult.presentAddress || "",
         photo: memberResult.photo || "",
+        nidPic: memberResult.nidPic || "",
         activeMonths: memberResult.activeMonths || [activeMonth],
       };
       localStorage.setItem("mess_user", JSON.stringify(currentUser));
 
       if (memberResult.isExistingMember) {
-        alert(memberResult.message || `স্বাগতম ${memberResult.name}! আপনি পূর্বেই রেজিস্টার্ড ছিলেন। চলতি মাসের (${activeMonth}) জন্য আপনার একাউন্ট সফলভাবে সক্রিয় করা হয়েছে!`);
+        alert(
+          memberResult.message ||
+            `স্বাগতম ${memberResult.name}! আপনি পূর্বেই রেজিস্টার্ড ছিলেন। আপনার তথ্য আপডেট এবং চলতি মাসের (${activeMonth}) জন্য একাউন্ট সক্রিয় করা হয়েছে!`
+        );
       } else {
-        alert("সফলভাবে রেজিস্ট্রেশন সম্পন্ন হয়েছে!");
+        alert("সফলভাবে রেজিস্ট্রেশন সম্পন্ন হয়েছে! স্বাগতম।");
       }
 
       this.reset();
@@ -106,6 +179,11 @@ document
     } catch (err) {
       console.error(err);
       alert("সার্ভার এরর হয়েছে!");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
     }
   });
 
@@ -172,8 +250,11 @@ async function initMyProfileHeader() {
       currentUser.room = freshMember.room;
       currentUser.photo = freshMember.photo || "";
       currentUser.nid = freshMember.nid || "";
-      currentUser.emergencyContact = freshMember.emergencyContact || "";
-      currentUser.address = freshMember.address || "";
+      currentUser.fatherName = freshMember.fatherName || "";
+      currentUser.fatherPhone = freshMember.fatherPhone || freshMember.emergencyContact || "";
+      currentUser.emergencyContact = freshMember.fatherPhone || freshMember.emergencyContact || "";
+      currentUser.presentAddress = freshMember.presentAddress || freshMember.address || "";
+      currentUser.address = freshMember.presentAddress || freshMember.address || "";
       currentUser.nidPic = freshMember.nidPic || "";
       currentUser.documents = freshMember.documents || [];
       localStorage.setItem("mess_user", JSON.stringify(currentUser));
@@ -194,17 +275,21 @@ async function initMyProfileHeader() {
 function renderMyDocumentsAndProfile(member) {
   if (!member) return;
 
-  const nidInput = document.getElementById("myNidInput");
-  const emergencyInput = document.getElementById("myEmergencyInput");
-  const addressInput = document.getElementById("myAddressInput");
+  const nameInput = document.getElementById("myInfoName");
+  const phoneInput = document.getElementById("myInfoPhone");
+  const fatherNameInput = document.getElementById("myInfoFatherName");
+  const fatherPhoneInput = document.getElementById("myInfoFatherPhone");
+  const presentAddressInput = document.getElementById("myInfoPresentAddress");
 
-  if (nidInput) nidInput.value = member.nid || "";
-  if (emergencyInput) emergencyInput.value = member.emergencyContact || "";
-  if (addressInput) addressInput.value = member.address || "";
+  if (nameInput) nameInput.value = member.name || "";
+  if (phoneInput) phoneInput.value = member.phone || "";
+  if (fatherNameInput) fatherNameInput.value = member.fatherName || "";
+  if (fatherPhoneInput) fatherPhoneInput.value = member.fatherPhone || member.emergencyContact || "";
+  if (presentAddressInput) presentAddressInput.value = member.presentAddress || member.address || "";
 
   // Render NID / ID Card preview and badge
-  const nidPreview = document.getElementById("myNidPreviewContainer");
-  const nidBadge = document.getElementById("myNidStatusBadge");
+  const nidPreview = document.getElementById("myInfoNidPreviewContainer");
+  const nidBadge = document.getElementById("myInfoNidStatusBadge");
 
   if (nidPreview && nidBadge) {
     if (member.nidPic) {
@@ -225,14 +310,14 @@ function renderMyDocumentsAndProfile(member) {
           </div>
         </div>
       `;
-      nidBadge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 flex items-center gap-1";
-      nidBadge.innerHTML = `<i class="fas fa-check-circle text-xs"></i>সংরক্ষিত`;
+      nidBadge.className = "inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700";
+      nidBadge.innerHTML = `<i class="fas fa-check-circle text-xs mr-1"></i>সংরক্ষিত`;
     } else {
       nidPreview.innerHTML = `
         <i class="fas fa-id-card text-2xl mb-1 text-gray-300"></i>
         <span>কোনো ছবি নেই</span>
       `;
-      nidBadge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600";
+      nidBadge.className = "inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600";
       nidBadge.innerText = "সংরক্ষিত নেই";
     }
   }
@@ -295,16 +380,43 @@ function renderMyDocumentsAndProfile(member) {
   }
 }
 
-// Save Member Personal Information Form (NID, Emergency, Address)
-async function saveMyPersonalDetails(e) {
+// Preview NID / Student ID photo in My Details
+function previewMyInfoNid(input) {
+  const container = document.getElementById("myInfoNidPreviewContainer");
+  const fileNameEl = document.getElementById("myInfoNidFileName");
+  if (!input.files || !input.files[0]) return;
+
+  const file = input.files[0];
+  if (fileNameEl) fileNameEl.innerText = file.name;
+
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (container) {
+        container.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover" />`;
+      }
+    };
+    reader.readAsDataURL(file);
+  } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+    if (container) {
+      container.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center bg-red-50 text-red-600"><i class="fas fa-file-pdf text-3xl mb-1"></i><span class="text-[11px] font-bold">PDF ফাইল</span></div>`;
+    }
+  }
+}
+
+// Save Member Personal Information and Documents Form (Name, Number, Fathers name, Number, Present Address, NID/Student ID)
+async function saveMyPersonalInformation(e) {
   if (e) e.preventDefault();
   if (!currentUser || currentUser.role !== "member") return;
 
-  const nid = (document.getElementById("myNidInput")?.value || "").trim();
-  const emergencyContact = (document.getElementById("myEmergencyInput")?.value || "").trim();
-  const address = (document.getElementById("myAddressInput")?.value || "").trim();
+  const name = (document.getElementById("myInfoName")?.value || "").trim();
+  const phone = (document.getElementById("myInfoPhone")?.value || "").trim();
+  const fatherName = (document.getElementById("myInfoFatherName")?.value || "").trim();
+  const fatherPhone = (document.getElementById("myInfoFatherPhone")?.value || "").trim();
+  const presentAddress = (document.getElementById("myInfoPresentAddress")?.value || "").trim();
+  const fileInput = document.getElementById("myInfoNidFile");
 
-  const btn = document.getElementById("btnSaveMyPersonalDetails");
+  const btn = document.getElementById("btnSaveMyPersonalInfo");
   const originalHtml = btn ? btn.innerHTML : "";
   if (btn) {
     btn.disabled = true;
@@ -312,24 +424,45 @@ async function saveMyPersonalDetails(e) {
   }
 
   try {
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("phone", phone);
+    formData.append("fatherName", fatherName);
+    formData.append("fatherPhone", fatherPhone);
+    formData.append("emergencyContact", fatherPhone);
+    formData.append("presentAddress", presentAddress);
+    formData.append("address", presentAddress);
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      formData.append("nidPicFile", fileInput.files[0]);
+    }
+
     const res = await fetch(`${API_BASE}/members/${currentUser.memberId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nid, emergencyContact, address }),
+      body: formData,
     });
 
     const data = await res.json();
     if (res.ok) {
-      currentUser.nid = data.nid;
+      currentUser.name = data.name;
+      currentUser.phone = data.phone;
+      currentUser.fatherName = data.fatherName;
+      currentUser.fatherPhone = data.fatherPhone;
       currentUser.emergencyContact = data.emergencyContact;
+      currentUser.presentAddress = data.presentAddress;
       currentUser.address = data.address;
+      if (data.nidPic) currentUser.nidPic = data.nidPic;
       localStorage.setItem("mess_user", JSON.stringify(currentUser));
-      alert("আপনার ব্যক্তিগত তথ্য ডাটাবেজে সফলভাবে সংরক্ষণ করা হয়েছে!");
+
+      alert("আপনার ব্যক্তিগত তথ্য ও ডকুমেন্টস সফলভাবে সংরক্ষণ করা হয়েছে!");
+      if (typeof initMyProfileHeader === "function") {
+        initMyProfileHeader();
+      }
     } else {
       alert(data.error || "তথ্য সংরক্ষণ ব্যর্থ হয়েছে!");
     }
   } catch (err) {
-    console.error("Save personal details error:", err);
+    console.error("Save personal info error:", err);
     alert("সার্ভার এরর: তথ্য সংরক্ষণ সম্ভব হয়নি!");
   } finally {
     if (btn) {
@@ -337,6 +470,11 @@ async function saveMyPersonalDetails(e) {
       btn.innerHTML = originalHtml;
     }
   }
+}
+
+// Backward-compatible fallback for saveMyPersonalDetails
+async function saveMyPersonalDetails(e) {
+  return saveMyPersonalInformation(e);
 }
 
 // Upload NID / Student ID Card Photo or Scan

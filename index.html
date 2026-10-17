@@ -19,10 +19,11 @@
   <body>
     <div
       id="authContainer"
-      class="flex flex-col items-center justify-center h-screen bg-indigo-50"
+      class="flex flex-col items-center justify-center min-h-screen py-6 px-4 bg-indigo-50"
     >
       <div
-        class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center"
+        id="authCard"
+        class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center max-h-[92vh] overflow-y-auto transition-all"
       >
         <h1 class="text-3xl font-bold text-indigo-900 mb-6">
           <i class="fas fa-home"></i> মেস ম্যানেজার
@@ -78,62 +79,156 @@
         </div>
 
         <div id="registerFormContainer" class="hidden space-y-4">
-          <p class="text-xl font-bold text-gray-800 mb-4">
-            নতুন মেম্বার রেজিস্ট্রেশন
-          </p>
-          <form id="registerFormAuth" class="space-y-4 text-left">
+          <div class="text-left border-b pb-3 mb-2">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <i class="fas fa-user-plus text-indigo-600"></i> নতুন মেম্বার রেজিস্ট্রেশন
+            </h2>
+            <p class="text-xs text-gray-500 mt-0.5">
+              মেস মেম্বার হিসেবে যুক্ত হতে আপনার তথ্য ও আইডি কার্ডের ছবি দিন
+            </p>
+          </div>
+          <form id="registerFormAuth" class="space-y-3.5 text-left">
+            <!-- 1. Name -->
             <div>
-              <label class="block text-sm text-gray-600 mb-1">নাম</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                name : <span class="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 id="regName"
                 required
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                placeholder="সদস্যের নাম লিখুন..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
               />
             </div>
+
+            <!-- 2. Number (Phone) -->
             <div>
-              <label class="block text-sm text-gray-600 mb-1"
-                >মোবাইল নম্বর (এটি দিয়ে লগইন করতে হবে)</label
-              >
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                Number : <span class="text-red-500">*</span>
+              </label>
               <input
                 type="tel"
                 id="regPhone"
                 required
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                placeholder="সদস্যের মোবাইল নম্বর (যা দিয়ে লগইন করবেন)..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
               />
             </div>
+
+            <!-- 3. Fathers Name -->
             <div>
-              <label class="block text-sm text-gray-600 mb-1">রুম নম্বর</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                fathers name : <span class="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                id="regRoom"
+                id="regFatherName"
                 required
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                placeholder="পিতার নাম লিখুন..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
               />
             </div>
+
+            <!-- 4. Fathers / Guardian Number -->
             <div>
-              <label class="block text-sm text-gray-600 mb-1"
-                >পাসওয়ার্ড / পিন</label
-              >
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                Number : <span class="text-red-500">*</span>
+              </label>
               <input
-                type="password"
-                id="regPin"
+                type="tel"
+                id="regFatherPhone"
                 required
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
+                placeholder="পিতা / অভিভাবকের মোবাইল নম্বর..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
               />
             </div>
+
+            <!-- 5. Present Address -->
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                present address : <span class="text-red-500">*</span>
+              </label>
+              <textarea
+                id="regPresentAddress"
+                rows="2"
+                required
+                placeholder="বর্তমান বসবাসের ঠিকানা..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+              ></textarea>
+            </div>
+
+            <!-- Room & PIN row -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">
+                  রুম নম্বর:
+                </label>
+                <input
+                  type="text"
+                  id="regRoom"
+                  placeholder="যেমন: 201"
+                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">
+                  পাসওয়ার্ড / পিন: <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="regPin"
+                  required
+                  placeholder="৪ ডিজিট পিন"
+                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
+                />
+              </div>
+            </div>
+
+            <!-- 6. NID / Student ID Card Photo Upload -->
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">
+                NID/Student ID Card Photo uplode : <span class="text-red-500">*</span>
+              </label>
+              <div class="border-2 border-dashed border-indigo-200 bg-indigo-50/50 rounded-xl p-3 text-center">
+                <input
+                  type="file"
+                  id="regNidFile"
+                  accept="image/*,.pdf"
+                  required
+                  class="hidden"
+                  onchange="previewRegisterNid(this)"
+                />
+                <label
+                  for="regNidFile"
+                  class="cursor-pointer flex flex-col items-center justify-center gap-1"
+                >
+                  <i class="fas fa-id-card text-2xl text-indigo-600 mb-0.5"></i>
+                  <span id="regNidFileName" class="text-xs font-bold text-indigo-900">
+                    আইডি কার্ডের ছবি সিলেক্ট করুন (Choose Photo)
+                  </span>
+                  <span class="text-[11px] text-gray-400">JPG, PNG বা PDF ফরম্যাট</span>
+                </label>
+              </div>
+              <div id="regNidPreviewWrapper" class="hidden mt-2 text-center">
+                <img id="regNidPreviewImg" src="" alt="NID Preview" class="h-24 mx-auto rounded-lg border object-cover shadow-xs" />
+              </div>
+            </div>
+
+            <!-- 7. Submit button -->
             <button
               type="submit"
-              class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-bold"
+              id="btnRegisterSubmit"
+              class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl transition font-bold text-sm shadow flex items-center justify-center gap-2 mt-2"
             >
-              রেজিস্টার
+              <i class="fas fa-check-circle"></i> রেজিস্টার সম্পন্ন করুন (submit)
             </button>
             <button
               type="button"
               onclick="showLogin()"
-              class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition text-sm"
+              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-xl transition text-xs font-semibold"
             >
-              লগইনে ফিরে যান
+              পূর্বে একাউন্ট থাকলে লগইন করুন
             </button>
           </form>
         </div>
@@ -1339,102 +1434,130 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Left: Personal Information Form -->
-                <div class="lg:col-span-5 bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-4">
-                  <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-user-edit text-indigo-600"></i> ব্যক্তিগত তথ্য আপডেট করুন
-                  </h4>
-                  <form id="myPersonalDetailsForm" onsubmit="saveMyPersonalDetails(event)" class="space-y-3.5">
-                    <div>
-                      <label class="block text-xs font-bold text-gray-700 mb-1">
-                        এনআইডি / স্টুডেন্ট আইডি নং:
-                      </label>
-                      <input
-                        type="text"
-                        id="myNidInput"
-                        placeholder="যেমন: 1998567890..."
-                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-bold text-gray-700 mb-1">
-                        জরুরি যোগাযোগ / অভিভাবকের মোবাইল:
-                      </label>
-                      <input
-                        type="tel"
-                        id="myEmergencyInput"
-                        placeholder="জরুরি কল করার নম্বর..."
-                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-bold text-gray-700 mb-1">
-                        স্থায়ী ঠিকানা (Permanent Address):
-                      </label>
-                      <textarea
-                        id="myAddressInput"
-                        rows="2"
-                        placeholder="গ্রাম/রোড, পোস্ট, থানা, জেলা..."
-                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white shadow-xs"
-                      ></textarea>
-                    </div>
-                    <button
-                      type="submit"
-                      id="btnSaveMyPersonalDetails"
-                      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-sm transition shadow flex items-center justify-center gap-2"
-                    >
-                      <i class="fas fa-save"></i> তথ্য ডাটাবেজে সংরক্ষণ করুন
-                    </button>
-                  </form>
+              <!-- Unified Form matching the requested formation -->
+              <form id="myPersonalInformationForm" onsubmit="saveMyPersonalInformation(event)" class="bg-gray-50/80 p-6 rounded-2xl border border-gray-200/80 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- 1. Name -->
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                      name : <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="myInfoName"
+                      required
+                      placeholder="সদস্যের নাম..."
+                      class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold focus:outline-indigo-500 bg-white shadow-xs"
+                    />
+                  </div>
+
+                  <!-- 2. Number (Member's Phone) -->
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                      Number : <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      id="myInfoPhone"
+                      required
+                      placeholder="সদস্যের মোবাইল নম্বর..."
+                      class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono focus:outline-indigo-500 bg-white shadow-xs"
+                    />
+                  </div>
+
+                  <!-- 3. Fathers Name -->
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                      fathers name : <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="myInfoFatherName"
+                      required
+                      placeholder="পিতার নাম..."
+                      class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-indigo-500 bg-white shadow-xs"
+                    />
+                  </div>
+
+                  <!-- 4. Fathers / Guardian Number -->
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">
+                      Number : <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      id="myInfoFatherPhone"
+                      required
+                      placeholder="পিতা বা অভিভাবকের মোবাইল নম্বর..."
+                      class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono focus:outline-indigo-500 bg-white shadow-xs"
+                    />
+                  </div>
                 </div>
 
-                <!-- Right: Document Uploads & Gallery -->
-                <div class="lg:col-span-7 space-y-5">
-                  <!-- NID / ID Card Upload Box -->
-                  <div class="bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-3">
-                    <div class="flex items-center justify-between">
-                      <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-id-badge text-indigo-600"></i> এনআইডি / স্টুডেন্ট আইডি কার্ডের ছবি
-                      </h4>
-                      <span id="myNidStatusBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                <!-- 5. Present Address -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">
+                    present address : <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="myInfoPresentAddress"
+                    rows="2"
+                    required
+                    placeholder="বর্তমান ঠিকানা লিখুন..."
+                    class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-indigo-500 bg-white shadow-xs"
+                  ></textarea>
+                </div>
+
+                <!-- 6. NID/Student ID Card Photo upload -->
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">
+                    NID/Student ID Card Photo uplode :
+                  </label>
+                  <div class="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-gray-200">
+                    <!-- Photo preview container -->
+                    <div id="myInfoNidPreviewContainer" class="w-full sm:w-44 h-28 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-400 text-xs overflow-hidden flex-shrink-0">
+                      <i class="fas fa-id-card text-2xl mb-1 text-gray-300"></i>
+                      <span>কোনো ছবি নেই</span>
+                    </div>
+
+                    <div class="flex-1 w-full space-y-2">
+                      <p class="text-xs text-gray-500 leading-relaxed">
+                        জাতীয় পরিচয়পত্র (NID) বা স্টুডেন্ট আইডি কার্ডের স্পষ্ট ছবি সিলেক্ট করুন।
+                      </p>
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="file"
+                          id="myInfoNidFile"
+                          accept="image/*,.pdf"
+                          class="hidden"
+                          onchange="previewMyInfoNid(this)"
+                        />
+                        <label
+                          for="myInfoNidFile"
+                          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-2 shadow-xs"
+                        >
+                          <i class="fas fa-upload"></i> ছবি পরিবর্তন / আপলোড করুন
+                        </label>
+                        <span id="myInfoNidFileName" class="text-xs text-gray-500 truncate max-w-xs"></span>
+                      </div>
+                      <span id="myInfoNidStatusBadge" class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
                         সংরক্ষিত নেই
                       </span>
                     </div>
-
-                    <div class="flex flex-col sm:flex-row items-center gap-4">
-                      <!-- NID Image Preview -->
-                      <div id="myNidPreviewContainer" class="w-full sm:w-44 h-28 rounded-xl border-2 border-dashed border-gray-300 bg-white flex flex-col items-center justify-center text-gray-400 text-xs overflow-hidden flex-shrink-0">
-                        <i class="fas fa-id-card text-2xl mb-1 text-gray-300"></i>
-                        <span>কোনো ছবি নেই</span>
-                      </div>
-
-                      <div class="flex-1 space-y-2 w-full">
-                        <p class="text-xs text-gray-500 leading-relaxed">
-                          আপনার জাতীয় পরিচয়পত্র (NID) বা স্টুডেন্ট আইডির স্পষ্ট ছবি বা স্ক্যান কপি আপলোড করুন।
-                        </p>
-                        <div class="flex items-center gap-2">
-                          <input
-                            type="file"
-                            id="myNidFileInput"
-                            accept="image/*,.pdf"
-                            class="hidden"
-                            onchange="uploadMyNidFile()"
-                          />
-                          <label
-                            for="myNidFileInput"
-                            id="btnUploadMyNid"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-2 shadow-xs"
-                          >
-                            <i class="fas fa-upload"></i> আইডি কার্ড আপলোড করুন
-                          </label>
-                        </div>
-                        <p id="myNidUploadStatus" class="text-xs text-indigo-600 font-medium hidden">
-                          <i class="fas fa-spinner fa-spin mr-1"></i> আপলোড হচ্ছে...
-                        </p>
-                      </div>
-                    </div>
                   </div>
+                </div>
+
+                <!-- 7. Submit Button -->
+                <div class="pt-2">
+                  <button
+                    type="submit"
+                    id="btnSaveMyPersonalInfo"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm transition shadow flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-save"></i> তথ্য ও ডকুমেন্টস সংরক্ষণ করুন (submit)
+                  </button>
+                </div>
+              </form>
 
                   <!-- Other Necessary Documents Submission Box -->
                   <div class="bg-gray-50/80 p-5 rounded-2xl border border-gray-200/80 space-y-4">
@@ -1796,7 +1919,7 @@
                 <strong>সদস্যের নাম:</strong> <span id="pdfSheetMemberName" style="font-size: 13px; font-weight: 800; color: #111827;">-</span>
               </td>
               <td style="width: 50%; vertical-align: top; padding: 2px 8px;">
-                <strong>জরুরি যোগাযোগ / অভিভাবক:</strong> <span id="pdfSheetEmergency" style="font-family: monospace;">-</span>
+                <strong>পিতার নাম:</strong> <span id="pdfSheetFatherName">-</span>
               </td>
             </tr>
             <tr>
@@ -1804,7 +1927,7 @@
                 <strong>মোবাইল নম্বর:</strong> <span id="pdfSheetPhone" style="font-family: monospace; font-weight: 700;">-</span>
               </td>
               <td style="padding: 2px 8px;">
-                <strong>এনআইডি / আইডি নং:</strong> <span id="pdfSheetNid" style="font-family: monospace;">-</span>
+                <strong>পিতা/অভিভাবকের নম্বর:</strong> <span id="pdfSheetEmergency" style="font-family: monospace;">-</span>
               </td>
             </tr>
             <tr>
@@ -1812,7 +1935,7 @@
                 <strong>রুম নম্বর:</strong> <span id="pdfSheetRoom" style="font-weight: 700;">-</span>
               </td>
               <td style="padding: 2px 8px;">
-                <strong>স্থায়ী ঠিকানা:</strong> <span id="pdfSheetAddress">-</span>
+                <strong>বর্তমান ঠিকানা:</strong> <span id="pdfSheetAddress">-</span>
               </td>
             </tr>
           </table>

@@ -625,11 +625,16 @@ async function prepareMemberPdfData(prefix = "md") {
 
   // Populate PDF Template Elements
   document.getElementById("pdfSheetMemberName").innerText = member.name;
+  if (document.getElementById("pdfSheetFatherName")) {
+    document.getElementById("pdfSheetFatherName").innerText = member.fatherName || "-";
+  }
   document.getElementById("pdfSheetPhone").innerText = member.phone || "-";
   document.getElementById("pdfSheetRoom").innerText = member.room || "-";
-  document.getElementById("pdfSheetEmergency").innerText = member.emergencyContact || "প্রযোজ্য নয়";
-  document.getElementById("pdfSheetNid").innerText = member.nid || "সংযুক্ত নেই";
-  document.getElementById("pdfSheetAddress").innerText = member.address || "দেওয়া হয়নি";
+  document.getElementById("pdfSheetEmergency").innerText = member.fatherPhone || member.emergencyContact || "প্রযোজ্য নয়";
+  if (document.getElementById("pdfSheetNid")) {
+    document.getElementById("pdfSheetNid").innerText = member.nid || "সংযুক্ত নেই";
+  }
+  document.getElementById("pdfSheetAddress").innerText = member.presentAddress || member.address || "দেওয়া হয়নি";
   document.getElementById("pdfSheetMonthLabel").innerText = `হিসাবের মাস: ${typeof formatYearMonth === "function" ? formatYearMonth(targetMonth) : targetMonth}`;
 
   document.getElementById("pdfSheetTotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;

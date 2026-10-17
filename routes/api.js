@@ -123,10 +123,21 @@ router.get("/members/:id", async (req, res) => {
 });
 
 // Register or Add Member (Handles new members and re-joining old members)
-router.post("/members", async (req, res) => {
+router.post("/members", upload.single("nidPicFile"), async (req, res) => {
   try {
-    const { name, phone, room, pin, activeMonth } = req.body;
+    const {
+      name,
+      phone,
+      room,
+      pin,
+      fatherName,
+      fatherPhone,
+      presentAddress,
+      activeMonth,
+    } = req.body;
     const currentMonth = activeMonth || new Date().toISOString().slice(0, 7);
+
+    const nidPicUrl = req.file ? `/uploads/members/${req.file.filename}` : (req.body.nidPic || "");
 
     // Check if phone already registered (Existing member re-registering)
     const existingMember = await Member.findOne({ phone: phone ? phone.trim() : "" });
@@ -138,6 +149,16 @@ router.post("/members", async (req, res) => {
       if (room) existingMember.room = room;
       if (name) existingMember.name = name;
       if (pin) existingMember.pin = pin;
+      if (fatherName) existingMember.fatherName = fatherName;
+      if (fatherPhone) {
+        existingMember.fatherPhone = fatherPhone;
+        existingMember.emergencyContact = fatherPhone;
+      }
+      if (presentAddress) {
+        existingMember.presentAddress = presentAddress;
+        existingMember.address = presentAddress;
+      }
+      if (nidPicUrl) existingMember.nidPic = nidPicUrl;
       await existingMember.save();
 
       return res.json({
@@ -150,7 +171,16 @@ router.post("/members", async (req, res) => {
     // New member registration
     const memberData = {
       ...req.body,
+      name: name ? name.trim() : "",
       phone: phone ? phone.trim() : "",
+      room: room || "অনির্ধারিত",
+      pin: pin || "1234",
+      fatherName: fatherName || "",
+      fatherPhone: fatherPhone || "",
+      emergencyContact: fatherPhone || req.body.emergencyContact || "",
+      presentAddress: presentAddress || "",
+      address: presentAddress || req.body.address || "",
+      nidPic: nidPicUrl,
       activeMonths:
         Array.isArray(req.body.activeMonths) && req.body.activeMonths.length > 0
           ? req.body.activeMonths
@@ -164,11 +194,23 @@ router.post("/members", async (req, res) => {
   }
 });
 
-// Update Member details (Admin Only)
-router.put("/members/:id", async (req, res) => {
+// Update Member details (supports multipart file upload and JSON)
+router.put("/members/:id", upload.single("nidPicFile"), async (req, res) => {
   try {
-    const updated = await Member.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.nidPic = `/uploads/members/${req.file.filename}`;
+    }
+    if (updateData.fatherPhone) {
+      updateData.emergencyContact = updateData.fatherPhone;
+    }
+    if (updateData.presentAddress) {
+      updateData.address = updateData.presentAddress;
+    }
+
+    const updated = await Member.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
+      returnDocument: "after",
     });
     res.json(updated);
   } catch (err) {
