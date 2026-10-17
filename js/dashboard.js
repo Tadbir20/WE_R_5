@@ -624,6 +624,10 @@ async function prepareMemberPdfData(prefix = "md") {
   const balance = mDepositSum - mMealCost;
 
   // Populate PDF Template Elements
+  const sheetTitleEl = document.getElementById("pdfSheetTitle");
+  if (sheetTitleEl) {
+    sheetTitleEl.innerText = `${member.name} Statement`;
+  }
   document.getElementById("pdfSheetMemberName").innerText = member.name;
   if (document.getElementById("pdfSheetFatherName")) {
     document.getElementById("pdfSheetFatherName").innerText = member.fatherName || "-";
@@ -635,7 +639,8 @@ async function prepareMemberPdfData(prefix = "md") {
     document.getElementById("pdfSheetNid").innerText = member.nid || "সংযুক্ত নেই";
   }
   document.getElementById("pdfSheetAddress").innerText = member.presentAddress || member.address || "দেওয়া হয়নি";
-  document.getElementById("pdfSheetMonthLabel").innerText = `হিসাবের মাস: ${typeof formatYearMonth === "function" ? formatYearMonth(targetMonth) : targetMonth}`;
+  const formattedMonth = typeof formatYearMonth === "function" ? formatYearMonth(targetMonth) : targetMonth;
+  document.getElementById("pdfSheetMonthLabel").innerText = `হিসাবের মাস: ${formattedMonth}`;
 
   document.getElementById("pdfSheetTotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
   document.getElementById("pdfSheetTotalMeals").innerText = mMealsSum;
@@ -718,7 +723,7 @@ async function downloadMemberStatementPDF(prefix = "md") {
     const safeName = (data.member.name || "Member").replace(/[^a-zA-Z0-9_\u0980-\u09FF]/g, "_");
     const opt = {
       margin: [6, 6, 6, 6],
-      filename: `member-statement-${safeName}-${data.targetMonth}.pdf`,
+      filename: `${safeName}-Statement-${data.targetMonth}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -755,7 +760,7 @@ async function printMemberStatement(prefix = "md") {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>সদস্য স্টেটমেন্ট - ${data.member.name}</title>
+        <title>${data.member.name} Statement - ${data.targetMonth}</title>
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet" />
         <style>
           body { font-family: 'Noto Sans Bengali', Arial, sans-serif; margin: 0; padding: 15px; color: #111827; }
