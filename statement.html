@@ -51,31 +51,6 @@
           margin: 8mm;
         }
       }
-
-      /* Google Translate Widget Styling */
-      .goog-te-banner-frame.skiptranslate,
-      .goog-te-banner-frame {
-        display: none !important;
-      }
-      body {
-        top: 0px !important;
-      }
-      #goog-gt-tt, .goog-te-balloon-frame {
-        display: none !important;
-      }
-      .goog-text-highlight {
-        background: none !important;
-        box-shadow: none !important;
-      }
-      .goog-logo-link {
-        display: none !important;
-      }
-      .goog-te-gadget {
-        display: none !important;
-      }
-      .skiptranslate iframe {
-        display: none !important;
-      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen py-6 px-3 text-gray-900">
@@ -89,28 +64,6 @@
         <span id="topMonthBadge" class="text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full border border-indigo-200">
           মাসিক স্টেটমেন্ট
         </span>
-        <span class="text-gray-300">|</span>
-        <!-- Language Switcher -->
-        <div class="flex items-center gap-1.5 bg-indigo-50/80 border border-indigo-200 px-2.5 py-1 rounded-xl shadow-xs" title="Translate this page / ভাষা পরিবর্তন">
-          <i class="fas fa-language text-indigo-600 text-sm"></i>
-          <button
-            type="button"
-            onclick="setTranslateLang('bn')"
-            class="btn-lang-bn text-xs font-bold px-1.5 py-0.5 rounded text-indigo-900 hover:bg-white transition"
-            title="বাংলায় দেখুন"
-          >
-            বাংলা
-          </button>
-          <span class="text-indigo-300 text-xs font-bold">|</span>
-          <button
-            type="button"
-            onclick="setTranslateLang('en')"
-            class="btn-lang-en text-xs font-bold px-1.5 py-0.5 rounded text-indigo-700 hover:bg-white transition"
-            title="Translate to English"
-          >
-            English
-          </button>
-        </div>
       </div>
 
       <!-- Controls for Additional Cost -->
@@ -450,7 +403,5 @@
 
       window.addEventListener("DOMContentLoaded", initStatement);
     </script>
-    <script src="js/translator.js"></script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   </body>
 </html>

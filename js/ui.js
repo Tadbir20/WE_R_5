@@ -30,6 +30,10 @@ function switchTab(tabId) {
     renderMembers();
     if (typeof loadMonthlyActiveMembersUI === "function") loadMonthlyActiveMembersUI();
   }
+  if (tabId === "deposits") {
+    if (typeof renderDeposits === "function") renderDeposits();
+    if (typeof renderIndividualDepositCards === "function") renderIndividualDepositCards();
+  }
   if (tabId === "member-details") renderMemberDetails("md");
   if (tabId === "backups") renderBackups();
   if (tabId === "meals" && typeof refreshAndRenderMeals === "function") {
@@ -61,6 +65,19 @@ function updateDropdowns() {
       select.value = currentVal;
     }
   });
+
+  // Populate individual deposit member filter
+  const filterSelect = document.getElementById("depositFilterMember");
+  if (filterSelect) {
+    const currentFilter = filterSelect.value || "all";
+    filterSelect.innerHTML = '<option value="all">সকল সদস্যের জমা (All)</option>';
+    members.forEach((m) => {
+      filterSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.room || "রুম নেই"})</option>`;
+    });
+    if (currentFilter && (currentFilter === "all" || members.find((m) => m.id === currentFilter))) {
+      filterSelect.value = currentFilter;
+    }
+  }
 
   if (typeof renderMealInputs === "function") {
     renderMealInputs();
