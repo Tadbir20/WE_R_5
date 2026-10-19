@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>মেস ম্যানেজমেন্ট সিস্টেম</title>
+    <title>We_R_5 - মেস ম্যানেজমেন্ট সিস্টেম</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -19,61 +19,126 @@
   <body>
     <div
       id="authContainer"
-      class="flex flex-col items-center justify-center min-h-screen py-6 px-4 bg-indigo-50"
+      class="relative flex flex-col items-center justify-center min-h-screen py-8 px-4 overflow-hidden bg-gradient-to-br from-indigo-50/90 via-slate-50 to-purple-50/80"
     >
+      <!-- Ambient Animated Glow Background Blobs -->
+      <div class="absolute -top-28 -left-28 w-80 h-80 bg-indigo-300/25 rounded-full blur-3xl pointer-events-none animate-ambient-1"></div>
+      <div class="absolute -bottom-28 -right-28 w-80 h-80 bg-purple-300/25 rounded-full blur-3xl pointer-events-none animate-ambient-2"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-300/15 rounded-full blur-[90px] pointer-events-none"></div>
+
       <div
         id="authCard"
-        class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md text-center max-h-[92vh] overflow-y-auto transition-all"
+        class="relative z-10 bg-white/95 backdrop-blur-xl p-7 sm:p-9 rounded-3xl shadow-2xl border border-indigo-100/80 w-full max-w-md text-center max-h-[92vh] overflow-y-auto transition-all duration-300 auth-card-animated"
       >
-        <h1 class="text-3xl font-bold text-indigo-900 mb-6">
-          <i class="fas fa-home"></i> মেস ম্যানেজার
-        </h1>
+        <!-- Logo & Brand Header -->
+        <div class="mb-6 flex flex-col items-center">
+          <!-- Logo Badge with glow and floating animation -->
+          <div class="relative group mb-3">
+            <div class="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur-md opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse"></div>
+            <div class="relative w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-600 p-0.5 shadow-xl flex items-center justify-center logo-animated cursor-pointer transform hover:scale-105 transition-all duration-300">
+              <div class="w-full h-full bg-slate-950/20 backdrop-blur-xs rounded-[14px] flex items-center justify-center p-3 text-white">
+                <!-- SVG Logo Emblem for We_R_5 -->
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full filter drop-shadow">
+                  <!-- Roof canopy / House crest -->
+                  <path d="M8 26L32 8L56 26" stroke="url(#logoG1)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 24V50C14 52.2091 15.7909 54 18 54H46C48.2091 54 50 52.2091 50 50V24" stroke="url(#logoG1)" stroke-width="4" stroke-linecap="round"/>
+                  <!-- Stylized central '5' emblem -->
+                  <path d="M25 24H39L24.5 35.5C24.5 35.5 28 34 32.5 34C37.5 34 40.5 37 40.5 41.5C40.5 46.5 36.5 49 31.5 49C26.5 49 24 45.5 24 45.5" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Energy dot -->
+                  <circle cx="32" cy="18" r="2.5" fill="#f43f5e" />
+                  <defs>
+                    <linearGradient id="logoG1" x1="8" y1="8" x2="56" y2="54" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#c7d2fe" />
+                      <stop offset="0.5" stop-color="#ffffff" />
+                      <stop offset="1" stop-color="#f472b6" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Title: We_R_5 -->
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-950 via-indigo-800 to-purple-900 bg-clip-text text-transparent">
+            We_R_5
+          </h1>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-[11px] font-bold text-indigo-700 mt-1 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>স্মার্ট মেস ড্যাশবোর্ড</span>
+          </div>
+        </div>
 
         <div id="loginFormContainer" class="space-y-4">
-          <p class="text-gray-600 mb-4">
+          <p class="text-xs sm:text-sm text-gray-500 font-medium">
             লগইন করে আপনার অ্যাকাউন্টে প্রবেশ করুন
           </p>
           <form id="loginForm" class="space-y-4 text-left">
             <div>
-              <label class="block text-sm text-gray-600 mb-1"
-                >মোবাইল নম্বর / অ্যাডমিন আইডি</label
-              >
-              <input
-                type="text"
-                id="loginPhone"
-                required
-                placeholder="মোবাইল নম্বর অথবা 'admin'"
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
-              />
+              <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <i class="fas fa-mobile-screen text-indigo-500"></i>
+                <span>মোবাইল নম্বর / অ্যাডমিন আইডি</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  id="loginPhone"
+                  required
+                  placeholder="মোবাইল নম্বর অথবা 'admin'"
+                  class="auth-input-animated w-full border border-gray-300 rounded-xl px-3.5 py-2.5 pl-10 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <i class="fas fa-user-circle text-base"></i>
+                </div>
+              </div>
             </div>
             <div>
-              <label class="block text-sm text-gray-600 mb-1"
-                >পাসওয়ার্ড / পিন</label
-              >
-              <input
-                type="password"
-                id="loginPassword"
-                required
-                placeholder="পিন দিন..."
-                class="w-full border rounded-lg px-3 py-2 focus:outline-indigo-500"
-              />
+              <label class="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <i class="fas fa-key text-indigo-500"></i>
+                <span>পাসওয়ার্ড / পিন</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="loginPassword"
+                  required
+                  placeholder="৪ ডিজিট পিন দিন..."
+                  class="auth-input-animated w-full border border-gray-300 rounded-xl px-3.5 py-2.5 pl-10 pr-10 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <i class="fas fa-lock text-sm"></i>
+                </div>
+                <button
+                  type="button"
+                  tabindex="-1"
+                  onclick="togglePasswordVisibility('loginPassword', this)"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-indigo-600 transition cursor-pointer"
+                  title="পাসওয়ার্ড দেখুন"
+                >
+                  <i class="far fa-eye text-sm"></i>
+                </button>
+              </div>
             </div>
+
             <button
               type="submit"
-              class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-bold"
+              class="auth-btn-animated w-full bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 hover:from-indigo-700 hover:via-indigo-800 hover:to-purple-700 text-white py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 group cursor-pointer"
             >
-              লগইন
+              <span>লগইন করুন (Login)</span>
+              <i class="fas fa-arrow-right-to-bracket text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
             </button>
-            <div id="registerLinkDiv" class="text-center mt-2">
-              <p class="text-sm text-gray-600">
-                একাউন্ট নেই?
-                <a
-                  href="#"
-                  onclick="showRegister()"
-                  class="text-indigo-600 font-bold hover:underline"
-                  >রেজিস্টার করুন</a
-                >
+
+            <div id="registerLinkDiv" class="text-center pt-2 border-t border-gray-100">
+              <p class="text-xs text-gray-500 mb-2">
+                কোনো একাউন্ট নেই?
               </p>
+              <button
+                type="button"
+                onclick="showRegister()"
+                class="auth-switch-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs border border-indigo-200 shadow-2xs cursor-pointer"
+              >
+                <i class="fas fa-user-plus text-xs"></i>
+                <span>নতুন মেম্বার রেজিস্টার করুন (Register)</span>
+              </button>
             </div>
           </form>
         </div>
@@ -91,70 +156,70 @@
             <!-- 1. Name -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                name : <span class="text-red-500">*</span>
+                Name : <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="regName"
                 required
                 placeholder="সদস্যের নাম লিখুন..."
-                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+                class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white"
               />
             </div>
 
             <!-- 2. Number (Phone) -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                Number : <span class="text-red-500">*</span>
+                Number (Phone) : <span class="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 id="regPhone"
                 required
                 placeholder="সদস্যের মোবাইল নম্বর (যা দিয়ে লগইন করবেন)..."
-                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
+                class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none bg-white"
               />
             </div>
 
             <!-- 3. Fathers Name -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                fathers name : <span class="text-red-500">*</span>
+                Father's Name : <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="regFatherName"
                 required
                 placeholder="পিতার নাম লিখুন..."
-                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+                class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white"
               />
             </div>
 
             <!-- 4. Fathers / Guardian Number -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                Number : <span class="text-red-500">*</span>
+                Father's Number : <span class="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 id="regFatherPhone"
                 required
                 placeholder="পিতা / অভিভাবকের মোবাইল নম্বর..."
-                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
+                class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none bg-white"
               />
             </div>
 
             <!-- 5. Present Address -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                present address : <span class="text-red-500">*</span>
+                Present Address : <span class="text-red-500">*</span>
               </label>
               <textarea
                 id="regPresentAddress"
                 rows="2"
                 required
                 placeholder="বর্তমান বসবাসের ঠিকানা..."
-                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+                class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white"
               ></textarea>
             </div>
 
@@ -168,29 +233,40 @@
                   type="text"
                   id="regRoom"
                   placeholder="যেমন: 201"
-                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-indigo-500 bg-white"
+                  class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none bg-white"
                 />
               </div>
               <div>
                 <label class="block text-xs font-bold text-gray-700 mb-1">
                   পাসওয়ার্ড / পিন: <span class="text-red-500">*</span>
                 </label>
-                <input
-                  type="password"
-                  id="regPin"
-                  required
-                  placeholder="৪ ডিজিট পিন"
-                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono focus:outline-indigo-500 bg-white"
-                />
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="regPin"
+                    required
+                    placeholder="৪ ডিজিট পিন"
+                    class="auth-input-animated w-full border border-gray-300 rounded-xl px-3 py-2 pr-9 text-sm font-mono focus:outline-none bg-white"
+                  />
+                  <button
+                    type="button"
+                    tabindex="-1"
+                    onclick="togglePasswordVisibility('regPin', this)"
+                    class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-indigo-600 transition cursor-pointer"
+                    title="পিন দেখুন"
+                  >
+                    <i class="far fa-eye text-xs"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- 6. NID / Student ID Card Photo Upload -->
             <div>
               <label class="block text-xs font-bold text-gray-700 mb-1">
-                NID/Student ID Card Photo uplode : <span class="text-red-500">*</span>
+                NID/Student ID Card Photo Upload : <span class="text-red-500">*</span>
               </label>
-              <div class="border-2 border-dashed border-indigo-200 bg-indigo-50/50 rounded-xl p-3 text-center">
+              <div class="border-2 border-dashed border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-400 transition rounded-xl p-3 text-center">
                 <input
                   type="file"
                   id="regNidFile"
@@ -219,14 +295,14 @@
             <button
               type="submit"
               id="btnRegisterSubmit"
-              class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl transition font-bold text-sm shadow flex items-center justify-center gap-2 mt-2"
+              class="auth-btn-animated w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 rounded-xl transition font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-2 cursor-pointer"
             >
-              <i class="fas fa-check-circle"></i> রেজিস্টার সম্পন্ন করুন (submit)
+              <i class="fas fa-check-circle"></i> রেজিস্টার সম্পন্ন করুন (Submit)
             </button>
             <button
               type="button"
               onclick="showLogin()"
-              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-xl transition text-xs font-semibold"
+              class="auth-switch-btn w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl transition text-xs font-bold border border-gray-200 cursor-pointer"
             >
               পূর্বে একাউন্ট থাকলে লগইন করুন
             </button>
@@ -241,7 +317,10 @@
         <div
           class="p-5 text-2xl font-bold border-b border-indigo-800 flex items-center justify-between"
         >
-          <span><i class="fas fa-home"></i> মেস ম্যানেজার</span>
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-white text-sm shadow-sm">5</div>
+            <span class="tracking-wide text-xl font-extrabold text-white">We_R_5</span>
+          </div>
           <button
             onclick="logout()"
             class="text-sm text-red-300 hover:text-red-100"
@@ -323,7 +402,10 @@
         <header
           class="bg-white shadow-sm p-4 flex justify-between items-center md:hidden"
         >
-          <span class="text-xl font-bold text-indigo-900">মেস ম্যানেজার</span>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-black text-white text-xs shadow-sm">5</div>
+            <span class="text-xl font-bold text-indigo-900">We_R_5</span>
+          </div>
           <div class="flex items-center gap-4">
             <button onclick="logout()" class="text-red-500 text-lg">
               <i class="fas fa-sign-out-alt"></i>

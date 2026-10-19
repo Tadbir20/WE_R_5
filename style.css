@@ -113,4 +113,145 @@ select:focus {
   border-color: var(--primary);
 }
 
+/* ========================================================
+   We_R_5 Login & Authentication Animations & Components
+   ======================================================== */
+
+/* Ambient Floating Background Blobs */
+@keyframes ambientFloat1 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(30px, -25px) scale(1.08);
+  }
+  100% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes ambientFloat2 {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-35px, 20px) scale(1.1);
+  }
+  100% {
+    transform: translate(25px, -30px) scale(0.92);
+  }
+}
+
+.animate-ambient-1 {
+  animation: ambientFloat1 14s ease-in-out infinite alternate;
+}
+
+.animate-ambient-2 {
+  animation: ambientFloat2 18s ease-in-out infinite alternate;
+}
+
+/* Logo Floating & Glowing Animation */
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    filter: drop-shadow(0 10px 18px rgba(79, 70, 229, 0.35));
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+    filter: drop-shadow(0 18px 26px rgba(147, 51, 234, 0.45));
+  }
+}
+
+.logo-animated {
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+/* Auth Card Smooth Entrance */
+@keyframes cardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-card-animated {
+  animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animated Interactive Inputs */
+.auth-input-animated {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #f8fafc;
+}
+
+.auth-input-animated:hover {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.auth-input-animated:focus {
+  background-color: #ffffff;
+  border-color: #6366f1 !important;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.2), 0 0 0 3.5px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Animated Buttons with Shimmer Sweep */
+.auth-btn-animated {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-btn-animated::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -70%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  transition: all 0.75s ease;
+  pointer-events: none;
+}
+
+.auth-btn-animated:hover::before {
+  left: 140%;
+}
+
+.auth-btn-animated:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -4px rgba(79, 70, 229, 0.42), 0 6px 10px -4px rgba(79, 70, 229, 0.25);
+}
+
+.auth-btn-animated:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 10px -2px rgba(79, 70, 229, 0.3);
+}
+
+/* Register Switch Button */
+.auth-switch-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-switch-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px -2px rgba(99, 102, 241, 0.2);
+}
+
+.auth-switch-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+
 
