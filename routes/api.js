@@ -408,7 +408,7 @@ router.post("/meals", async (req, res) => {
     }
 
     // Auto-update rolling backup in background
-    backupService.backupLast3Months().catch(console.error);
+    backupService.backupLast12Months().catch(console.error);
 
     res.json({ success: true });
   } catch (err) {
@@ -419,14 +419,14 @@ router.post("/meals", async (req, res) => {
 router.delete("/meals/:id", async (req, res) => {
   try {
     await Meal.findByIdAndDelete(req.params.id);
-    backupService.backupLast3Months().catch(console.error);
+    backupService.backupLast12Months().catch(console.error);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ----- Backup API (Last 3 Months) -----
+// ----- Backup API (Last 12 Months) -----
 router.get("/backups", (req, res) => {
   try {
     const list = backupService.listBackups();
@@ -438,7 +438,7 @@ router.get("/backups", (req, res) => {
 
 router.post("/backups/create", async (req, res) => {
   try {
-    const months = await backupService.backupLast3Months();
+    const months = await backupService.backupLast12Months();
     const list = backupService.listBackups();
     res.json({ success: true, backedUpMonths: months, backups: list });
   } catch (err) {

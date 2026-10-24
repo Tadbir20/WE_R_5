@@ -12,10 +12,10 @@ if (!fs.existsSync(BACKUP_DIR)) {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
 }
 
-// Helper: Get list of YYYY-MM for the last 3 months
-function getLast3Months(baseDate = new Date()) {
+// Helper: Get list of YYYY-MM for the last 12 months
+function getLast12Months(baseDate = new Date()) {
   const months = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 12; i++) {
     const d = new Date(baseDate.getFullYear(), baseDate.getMonth() - i, 1);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -23,6 +23,9 @@ function getLast3Months(baseDate = new Date()) {
   }
   return months;
 }
+
+// Backward compatibility alias
+const getLast3Months = getLast12Months;
 
 // Generate backup for a specific month
 async function generateMonthBackup(monthStr) {
@@ -110,9 +113,9 @@ async function generateMonthBackup(monthStr) {
   return filePath;
 }
 
-// Backup last 3 months and prune files older than 3 months
-async function backupLast3Months() {
-  const allowedMonths = getLast3Months();
+// Backup last 12 months and prune files older than 12 months
+async function backupLast12Months() {
+  const allowedMonths = getLast12Months();
   const createdFiles = [];
 
   for (const month of allowedMonths) {
@@ -124,7 +127,7 @@ async function backupLast3Months() {
     }
   }
 
-  // Cleanup files older than the last 3 months
+  // Cleanup files older than the last 12 months
   try {
     const existingFiles = fs.readdirSync(BACKUP_DIR);
     existingFiles.forEach((file) => {
@@ -142,6 +145,9 @@ async function backupLast3Months() {
 
   return allowedMonths;
 }
+
+// Backward compatibility alias
+const backupLast3Months = backupLast12Months;
 
 // List all existing backups
 function listBackups() {
@@ -196,11 +202,13 @@ function getBackupData(monthStr) {
 }
 
 module.exports = {
+  backupLast12Months,
   backupLast3Months,
   generateMonthBackup,
   listBackups,
   getBackupFilePath,
   getBackupData,
+  getLast12Months,
   getLast3Months,
   BACKUP_DIR,
 };

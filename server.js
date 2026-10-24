@@ -37,11 +37,11 @@ async function startServer() {
     .then(async () => {
       console.log(`MongoDB connected successfully at ${mongoUri}`);
       
-      // Auto-run backup for the last 3 months
+      // Auto-run backup for the last 12 months
       const backupService = require("./services/backupService");
       try {
-        const backedUp = await backupService.backupLast3Months();
-        console.log(`Auto-backup initialized for last 3 months: ${backedUp.join(", ")}`);
+        const backedUp = await backupService.backupLast12Months();
+        console.log(`Auto-backup initialized for last 12 months: ${backedUp.join(", ")}`);
       } catch (backupErr) {
         console.error("Initial backup error:", backupErr);
       }
@@ -49,8 +49,8 @@ async function startServer() {
       // Schedule daily backup check (every 24 hours)
       setInterval(async () => {
         try {
-          await backupService.backupLast3Months();
-          console.log("Daily 3-month rolling backup completed.");
+          await backupService.backupLast12Months();
+          console.log("Daily 12-month rolling backup completed.");
         } catch (e) {
           console.error("Daily backup error:", e);
         }

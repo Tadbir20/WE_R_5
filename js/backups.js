@@ -1,5 +1,5 @@
 // js/backups.js
-// 3-Month Monthly Backup & Archive Management
+// 12-Month Monthly Backup & Archive Management
 
 async function renderBackups() {
   const container = document.getElementById("backupsContainer");
@@ -31,7 +31,7 @@ async function renderBackups() {
 
     container.innerHTML = "";
     
-    // Sort and display last 3 months
+    // Sort and display last 12 months
     backups.forEach((b, idx) => {
       const isCurrentMonth = idx === 0;
       const summary = b.summary || {};
@@ -125,7 +125,7 @@ async function triggerManualBackup() {
     });
     const data = await res.json();
     if (data.success) {
-      alert(`বিগত ৩ মাসের ব্যাকআপ সফলভাবে সম্পন্ন হয়েছে!\nমাসের তালিকা: ${data.backedUpMonths.join(", ")}`);
+      alert(`বিগত ১২ মাসের ব্যাকআপ সফলভাবে সম্পন্ন হয়েছে!\nমাসের তালিকা: ${data.backedUpMonths.join(", ")}`);
       renderBackups();
     } else {
       alert("ব্যাকআপ তৈরি করতে সমস্যা হয়েছে!");
