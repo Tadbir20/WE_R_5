@@ -209,6 +209,10 @@ function renderMemberDetails(prefix = "md", forcedMemberId = null) {
 
   document.getElementById(prefix + "TotalDeposit").innerText = `৳ ${mDepositSum.toLocaleString("en-IN")}`;
   document.getElementById(prefix + "TotalMeals").innerText = mMealsSum;
+  const rateEl = document.getElementById(prefix + "MealRate");
+  if (rateEl) {
+    rateEl.innerText = `৳ ${mealRate.toFixed(2)}`;
+  }
   document.getElementById(prefix + "MealCost").innerText = `৳ ${mMealCost.toFixed(2)}`;
   document.getElementById(prefix + "Balance").innerText = `৳ ${balance.toFixed(2)} ${
     balance >= 0 ? "(পাওনা)" : "(বাকি)"
