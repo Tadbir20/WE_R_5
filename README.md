@@ -104,42 +104,6 @@ WE_R_5/
 
 ---
 
-## ⚙️ লোকাল সেটআপ নির্দেশিকা (Installation & Setup)
-
-### ১. রিপোজিটরি ক্লোন করুন:
-```bash
-git clone https://github.com/Tadbir20/WE_R_5.git
-cd WE_R_5
-```
-
-### ২. ডিপেন্ডেন্সি ইনস্টল করুন:
-```bash
-npm install
-```
-
-### ৩. পরিবেশ ভেরিয়েবল সেটআপ করুন:
-প্রজেক্টের রুট ডিরেক্টরিতে একটি `.env` ফাইল তৈরি করুন এবং আপনার MongoDB কানেকশন স্ট্রিং দিন:
-```env
-PORT=3000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/mess_manager?retryWrites=true&w=majority
-```
-
-### ৪. সার্ভার চালু করুন:
-```bash
-# প্রোডাকশন স্টার্ট
-npm start
-
-# অথবা ডেভেলপমেন্ট মোড
-node server.js
-```
-
-### ৫. ব্রাউজারে অ্যাপ ওপেন করুন:
-ব্রাউজারে গিয়ে প্রবেশ করুন:
-```
-http://localhost:3000
-```
-
----
 
 ## 🔌 প্রধান API এন্ডপয়েন্টসমূহ (API Endpoints)
 
