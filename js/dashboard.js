@@ -785,6 +785,7 @@ async function printMemberStatement(prefix = "md") {
     <html>
       <head>
         <title>${data.member.name} Statement - ${data.targetMonth}</title>
+        <base href="${window.location.origin}/" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap" rel="stylesheet" />
         <style>
           body { font-family: 'Noto Sans Bengali', Arial, sans-serif; margin: 0; padding: 15px; color: #111827; }
