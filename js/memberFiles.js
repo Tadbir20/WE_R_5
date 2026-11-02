@@ -31,12 +31,26 @@ async function renderMemberFilesList() {
     }
 
     container.innerHTML = "";
-    members.forEach((m) => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+
+    // Sort members: Active members for current month appear first!
+    const sortedMembers = [...members].sort((a, b) => {
+      const aActive = Array.isArray(a.activeMonths) && a.activeMonths.includes(currentMonth);
+      const bActive = Array.isArray(b.activeMonths) && b.activeMonths.includes(currentMonth);
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      return (a.name || "").localeCompare(b.name || "");
+    });
+
+    sortedMembers.forEach((m) => {
+      const isActiveCurrent = Array.isArray(m.activeMonths) && m.activeMonths.includes(currentMonth);
       const avatarSrc = m.photo || "https://ui-avatars.com/api/?name=" + encodeURIComponent(m.name) + "&background=6366f1&color=fff&size=128";
       const docCount = (m.documents ? m.documents.length : 0) + (m.nidPic ? 1 : 0);
 
       const card = document.createElement("div");
-      card.className = "bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col justify-between";
+      card.className = `bg-white rounded-2xl p-6 shadow-sm border ${
+        isActiveCurrent ? "border-green-300 ring-1 ring-green-100" : "border-gray-100"
+      } hover:shadow-md transition flex flex-col justify-between`;
       card.id = `member-card-${m.id}`;
 
       card.innerHTML = `
@@ -49,7 +63,14 @@ async function renderMemberFilesList() {
               onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=6366f1&color=fff'"
             />
             <div class="flex-1 min-w-0">
-              <h3 class="text-lg font-bold text-gray-900 truncate">${m.name}</h3>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h3 class="text-lg font-bold text-gray-900 truncate">${m.name}</h3>
+                ${
+                  isActiveCurrent
+                    ? `<span class="text-[10px] bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-bold">চলতি মাসে সক্রিয়</span>`
+                    : ""
+                }
+              </div>
               <p class="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
                 <i class="fas fa-phone-alt text-xs text-indigo-500"></i> ${m.phone}
               </p>

@@ -33,16 +33,30 @@ function switchTab(tabId) {
   const activeNav = document.getElementById(`nav-${tabId}`);
   if (activeNav) activeNav.classList.add("bg-indigo-800");
 
-  if (tabId === "dashboard") updateDashboard();
+  if (tabId === "dashboard") {
+    if (typeof initDashboardMonth === "function") initDashboardMonth();
+    updateDashboard();
+  }
   if (tabId === "members") {
     renderMembers();
     if (typeof loadMonthlyActiveMembersUI === "function") loadMonthlyActiveMembersUI();
   }
   if (tabId === "deposits") {
+    if (typeof initDepositMonth === "function") initDepositMonth();
     if (typeof renderDeposits === "function") renderDeposits();
     if (typeof renderIndividualDepositCards === "function") renderIndividualDepositCards();
   }
-  if (tabId === "member-details") renderMemberDetails("md");
+  if (tabId === "expenses") {
+    if (typeof initExpenseMonth === "function") initExpenseMonth();
+    if (typeof renderExpenses === "function") renderExpenses();
+  }
+  if (tabId === "member-details") {
+    const mdMonthSelect = document.getElementById("mdMonthSelect");
+    if (mdMonthSelect && !mdMonthSelect.value) {
+      mdMonthSelect.value = new Date().toISOString().slice(0, 7);
+    }
+    renderMemberDetails("md");
+  }
   if (tabId === "backups") renderBackups();
   if (tabId === "meals" && typeof refreshAndRenderMeals === "function") {
     refreshAndRenderMeals();
@@ -64,20 +78,45 @@ function switchTab(tabId) {
 }
 
 function updateDropdowns() {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
+  // Sort members: Current month active members appear FIRST at the top!
+  const sortedMembers = [...members].sort((a, b) => {
+    const aActive = Array.isArray(a.activeMonths) && a.activeMonths.includes(currentMonth);
+    const bActive = Array.isArray(b.activeMonths) && b.activeMonths.includes(currentMonth);
+    if (aActive && !bActive) return -1;
+    if (!aActive && bActive) return 1;
+    return (a.name || "").localeCompare(b.name || "");
+  });
+
   const memberSelects = [
     document.getElementById("depositMemberSelect"),
     document.getElementById("expenseMemberSelect"),
     document.getElementById("detailsMemberSelect"),
   ];
+
   memberSelects.forEach((select) => {
     if (!select) return;
     const currentVal = select.value;
     select.innerHTML = '<option value="">সদস্য বাছুন</option>';
-    members.forEach((m) => {
-      select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+
+    sortedMembers.forEach((m) => {
+      const isActive = Array.isArray(m.activeMonths) && m.activeMonths.includes(currentMonth);
+      select.innerHTML += `<option value="${m.id}">${m.name} ${isActive ? "(চলতি মাসে সক্রিয়)" : ""}</option>`;
     });
+
     if (currentVal && members.find((m) => m.id === currentVal)) {
       select.value = currentVal;
+    } else if (select.id === "detailsMemberSelect" && !select.value) {
+      // For Member Details: Auto-select the first active member of current month!
+      const firstActive = sortedMembers.find(
+        (m) => Array.isArray(m.activeMonths) && m.activeMonths.includes(currentMonth)
+      );
+      if (firstActive) {
+        select.value = firstActive.id;
+      } else if (sortedMembers.length > 0) {
+        select.value = sortedMembers[0].id;
+      }
     }
   });
 
@@ -86,8 +125,9 @@ function updateDropdowns() {
   if (filterSelect) {
     const currentFilter = filterSelect.value || "all";
     filterSelect.innerHTML = '<option value="all">সকল সদস্যের জমা (All)</option>';
-    members.forEach((m) => {
-      filterSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.room || "রুম নেই"})</option>`;
+    sortedMembers.forEach((m) => {
+      const isActive = Array.isArray(m.activeMonths) && m.activeMonths.includes(currentMonth);
+      filterSelect.innerHTML += `<option value="${m.id}">${m.name} ${isActive ? "(সক্রিয়)" : ""}</option>`;
     });
     if (currentFilter && (currentFilter === "all" || members.find((m) => m.id === currentFilter))) {
       filterSelect.value = currentFilter;

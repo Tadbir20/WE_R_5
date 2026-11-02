@@ -87,18 +87,35 @@ function renderMembers() {
     return;
   }
 
-  members.forEach((m) => {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
+  // Sort members: Current month's active members appear at the top of the list!
+  const sortedMembers = [...members].sort((a, b) => {
+    const aActive = Array.isArray(a.activeMonths) && a.activeMonths.includes(currentMonth);
+    const bActive = Array.isArray(b.activeMonths) && b.activeMonths.includes(currentMonth);
+    if (aActive && !bActive) return -1;
+    if (!aActive && bActive) return 1;
+    return (a.name || "").localeCompare(b.name || "");
+  });
+
+  sortedMembers.forEach((m) => {
     const activeList = Array.isArray(m.activeMonths) ? m.activeMonths : [];
+    const isActiveCurrent = activeList.includes(currentMonth);
+
     let monthsHtml = "";
     if (activeList.length === 0) {
       monthsHtml = `<span class="text-xs text-gray-400 italic">কোনো মাসে যুক্ত নেই</span>`;
     } else {
       monthsHtml = activeList
         .slice(-3) // Show last 3 active months
-        .map(
-          (mo) =>
-            `<span class="inline-block bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-indigo-200 mr-1">${mo}</span>`
-        )
+        .map((mo) => {
+          const isThisMonth = mo === currentMonth;
+          return `<span class="inline-block ${
+            isThisMonth
+              ? "bg-green-100 text-green-800 border-green-300 font-black"
+              : "bg-indigo-50 text-indigo-700 border-indigo-200 font-bold"
+          } text-[11px] px-2 py-0.5 rounded-md border mr-1">${mo}${isThisMonth ? " (চলতি)" : ""}</span>`;
+        })
         .join("");
       if (activeList.length > 3) {
         monthsHtml += `<span class="text-[11px] text-gray-500 font-bold">+${activeList.length - 3}</span>`;
@@ -106,20 +123,32 @@ function renderMembers() {
     }
 
     tbody.innerHTML += `
-      <tr class="border-b hover:bg-gray-50 transition">
-        <td class="p-3 font-semibold text-gray-900 flex items-center gap-2">
-          ${
-            m.photo
-              ? `<img src="${m.photo}" class="w-7 h-7 rounded-full object-cover border" />`
-              : `<div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">${(m.name || "M").charAt(0)}</div>`
-          }
-          <span>${m.name}</span>
+      <tr class="border-b hover:bg-gray-50 transition ${isActiveCurrent ? "bg-green-50/20" : ""}">
+        <td class="p-3 font-semibold text-gray-900">
+          <div class="flex items-center gap-2">
+            ${
+              m.photo
+                ? `<img src="${m.photo}" class="w-8 h-8 rounded-full object-cover border border-gray-200" />`
+                : `<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">${(m.name || "M").charAt(0)}</div>`
+            }
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-gray-900">${m.name}</span>
+                ${
+                  isActiveCurrent
+                    ? `<span class="bg-green-100 text-green-700 border border-green-200 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fas fa-check-circle text-[9px]"></i> চলতি মাসে সক্রিয়</span>`
+                    : `<span class="bg-gray-100 text-gray-500 text-[10px] font-medium px-1.5 py-0.5 rounded-full">নিষ্ক্রিয়</span>`
+                }
+              </div>
+              <span class="text-xs text-gray-400 font-mono">${m.phone}</span>
+            </div>
+          </div>
         </td>
         <td class="p-3 text-gray-600 font-mono text-xs">${m.phone}</td>
-        <td class="p-3 text-gray-700 font-medium">${m.room}</td>
+        <td class="p-3 text-gray-700 font-medium">${m.room || "-"}</td>
         <td class="p-3">${monthsHtml}</td>
         <td class="p-3 flex items-center gap-2">
-          <button onclick="openMemberDossier('${m.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition flex items-center gap-1 shadow-sm">
+          <button onclick="openMemberDossier('${m.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition flex items-center gap-1 shadow-sm" title="সদস্যের সকল ফাইল ও ছবি দেখুন">
             <i class="fas fa-folder-open"></i> ফাইল / ছবি
           </button>
           <button onclick="deleteMember('${m.id}')" class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition" title="স্থায়ীভাবে মুছুন">
