@@ -339,7 +339,12 @@ function printExpenseStatement() {
       <body>
         ${sheet.innerHTML}
         <script>
-          window.onload = function() { window.print(); window.close(); }
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              window.close();
+            }, 300);
+          };
         </script>
       </body>
     </html>
